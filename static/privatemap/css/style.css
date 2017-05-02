@@ -1,0 +1,82 @@
+body {
+    position: relative;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+}
+
+.navbar-brand>img {
+    height: 100%;
+    width: 100px;
+}
+
+#header {
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+#logowrapper {
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 3px;
+    padding-bottom: 8px;
+}
+
+.jumbotron img {
+    width: 150%;
+    margin-bottom: 20px;
+    margin-left: -50px;
+}
+
+.jumbotron {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    z-index: 9;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+#background {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    background-size: cover;
+}
+
+#errorMessage {
+    text-align: center;
+    background-color: rgba(232, 64, 64, 0.6);
+    color: white;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+button#login {
+    width: 100%;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+input.warning::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color:    #d62d20;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color:    #909;
+   opacity:  1;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color:    #909;
+   opacity:  1;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color:    #909;
+}

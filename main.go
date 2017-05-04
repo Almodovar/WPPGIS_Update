@@ -15,6 +15,7 @@ var templates = template.Must(template.New("t").ParseGlob("static/**/*.html"))
 type Client struct {
 	Name     string
 	Password string
+	Role     string
 }
 
 func main() {
@@ -27,14 +28,17 @@ func main() {
 	router.HandleFunc("/public/", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w, r, "public", nil)
 	})
-	router.HandleFunc("/private/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, r, "private", nil)
+	router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w, r, "login", nil)
+	})
+
+	router.HandleFunc("/administration/", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w, r, "administration", nil)
 	})
 
 	router.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
 		var client = new(Client)
 		var errorMessage = "USERNAME WARNING!"
-		var t string
 		err := json.NewDecoder(r.Body).Decode(&client)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -55,26 +59,32 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
+			// fmt.Println(client.Name, client.Password)
+			// fmt.Println(name, role, password)
 			if name == client.Name && password == client.Password {
-				t = role
+				client.Role = role
+				fmt.Println(client.Role)
+				if client.Role == "admin" {
+					errorMessage = "adminAccept"
+				}
+				if client.Role == "client" {
+					errorMessage = "clientAccept"
+				}
 			}
 			if name == client.Name && password != client.Password {
 				errorMessage = "PASSWORD WARNING!"
 			}
 		}
-		switch t {
-		case "admin":
-			renderTemplate(w, r, "administration", nil)
-		case "client":
-			renderTemplate(w, r, "client/"+client.Name, nil)
-		default:
-			a, err := json.Marshal(errorMessage)
-			if err != nil {
-				panic(err)
-			}
-			w.Write(a)
+
+		a, err := json.Marshal(errorMessage)
+		if err != nil {
+			panic(err)
 		}
+		w.Write(a)
 	})
+
+	router.HandleFunc("/runmodel", HandleModelRun)
+	router.HandleFunc("/drawecooutletchart", HandleEcoOutletChart)
 
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 	http.ListenAndServe(":8080", router)

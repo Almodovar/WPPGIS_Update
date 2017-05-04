@@ -1,0 +1,284 @@
+/*Set global style*/
+
+body {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    min-width: 1680px;
+}
+
+
+/* Style the tab */
+
+div.tab {
+    position: relative;
+    overflow: hidden;
+    /*border: 1px solid #ccc;*/
+    background-color: #f1f1f1;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+
+/* Style the buttons inside the tab */
+
+div.tab button {
+    background-color: inherit;
+    float: right;
+    border: none;
+    outline: none;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+
+/* Change background color of buttons on hover */
+
+div.tab .tabbtn:hover {
+    cursor: pointer;
+    background-color: #ddd;
+}
+
+
+/* Create an active/current tablink class */
+
+div.tab .tabbtn.active {
+    background-color: white;
+}
+
+
+/* Style the tab content */
+
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+.tabcontent {
+    -webkit-animation: fadeEffect 1s;
+    animation: fadeEffect 1s;
+    /* Fading effect takes 1 second */
+}
+
+@-webkit-keyframes fadeEffect {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeEffect {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+
+/*Style the chart*/
+
+#statchart {
+    height: 300px;
+}
+
+
+/*Style the table*/
+
+#mangementtable {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+.marginspace {
+    margin-top: 50px;
+}
+
+
+/*Style map buttons*/
+
+.mapbtn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+
+/*Style the map*/
+
+#evaluationmap {
+    width: 100%;
+    height: 550px;
+}
+
+#optimizationmap {
+    width: 100%;
+    height: 550px;
+}
+
+.bmptable {
+    height: 780px;
+    overflow-y: scroll;
+}
+
+#optimizationsetup {
+    height: 40px;
+}
+
+.optimizationtable {
+    height: 740px;
+    overflow-y: scroll;
+}
+
+#evaluationmapbtn {
+    margin-bottom: 10px;
+}
+
+#optimizationmapbtn {
+    margin-bottom: 10px;
+}
+
+.searchinput {
+    margin-left: 10px;
+    border-radius: 5px;
+    border: 1px lightblue solid;
+    padding-left: 10px;
+    margin-right: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+.execbtn {
+    float: right;
+    width: 200px;
+}
+
+
+/*Style the report*/
+
+.reportenter,
+.reportexit {
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    /*padding-right:10px;*/
+}
+
+.reportexit button {
+    font-size: 12px;
+}
+
+.reportgenerate {
+    padding-top: 10px;
+    padding-bottom: 9%;
+}
+
+.divide {
+    border-right: 1px solid #D2D2D2
+}
+
+.hdivide {
+    border-top: 1px solid #D2D2D2
+}
+
+.chart {
+    margin-top: 10px;
+    height: 270px;
+}
+
+.highcharts-container {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.rotate-north {
+    top: 65px;
+    left: .5em;
+}
+
+.ol-touch .rotate-north {
+    top: 80px;
+}
+
+.ol-marginspace {
+    margin-top: 5px;
+}
+
+table {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+table th,
+td {
+    text-align: center
+}
+
+#feature-info {
+    background-color: white;
+    width: 150px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    font-size: 14px;
+
+}
+
+#result-feature-info {
+    background-color: white;
+    width: 150px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    font-size: 14px;
+
+}
+
+#loading-page {
+    position: absolute;
+    top: 400px;
+    width: 100%;
+    z-index: 100;
+    background-color: rgba(255, 255, 255, 1);
+    visibility: hidden;
+}
+
+#loading-info {
+    position: relative: ;
+    height: 400px;
+    width: 100%;
+}
+
+#loading-info img {
+    width: 100px;
+    height: 100px;
+}
+
+#loading-info #progress-info {
+    position: relative;
+    padding-top: 32px;
+    font-size: 32px;
+    font-weight: bolder;
+}
+
+#loading-info #progress-info #box1 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+#loading-info #progress-info #box2,
+#box3,
+#box4,
+#box5,
+#box6 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: none
+}

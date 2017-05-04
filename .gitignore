@@ -1,3 +1,7 @@
 static/homepage/node_modules
 static/publicmap/node_modules
 static/privatemap/node_modules
+static/administration/node_modules
+static/administration/assets/swat
+static/administration/assets/WEBsOptimization
+static/login/node_modules

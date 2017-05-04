@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.0.1/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="/static/administration/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/administration/css/style.css" rel="stylesheet">
+    <!--<link href="./css/carousel.css" rel="stylesheet">-->
+    <link href="/static/administration/css/button.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Rajdhani|Unica+One" rel="stylesheet">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="/static/administration/node_modules/highcharts/themes/dark-unica.js"></script>
+    <!-- load D3js -->
+    <script src="http://d3plus.org/js/d3.js"></script>
+    <!-- load D3plus after D3js -->
+    <script src="http://d3plus.org/js/d3plus.js"></script>
+</head>
+
+<body>
+    <div class="tab">
+        <button id="logobtn" style="float:left">Welcome</button>
+        <button id="logout" class="tablinks tabbtn">Logout</button>
+        <button id="tab3" class="tablinks tabbtn">BMP Scenario Optimization</button>
+        <button id="tab2" class="tablinks tabbtn">BMP Scenario Evaluation</button>
+        <button id="tab1" class="tablinks tabbtn" id="defaultOpen">Dashboard</button>
+    </div>
+    <hr style="border:0px">
+    <div id="dashboard" class="tabcontent">
+        <div class="row">
+            <div class="col-sm-2 col-sm-offset-1">
+                Account
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6 text-center">
+                        <p style="line-height:400%">Name
+                            <br>
+                            <span>Kun</span>
+                        </p>
+                    </div>
+                    <div class="col-sm-6 text-center">
+                        <p style="line-height:400%">Group
+                            <br>
+                            <span>Admin</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 col-sm-offset-1">
+                Summary
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 text-center">
+                        <p style="line-height:400%">Client
+                            <br>
+                            <span style="font-size:20px;font-weight:bold;">40</span>
+                        </p>
+                    </div>
+                    <div class="col-sm-4 text-center">
+                        <p style="line-height:400%">Scenario
+                            <br>
+                            <span style="font-size:20px;font-weight:bold;">80 / <span style="color:red">30</span></span>
+                        </p>
+                    </div>
+                    <div class="col-sm-4 text-center">
+                        <p style="line-height:400%">Request
+                            <br>
+                            <span style="font-size:20px;font-weight:bold;">100 / <span style="color:red">20</span></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2 col-sm-offset-1">
+                Progress
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6 text-center">
+                        <p style="line-height:400%">Enrollment
+                            <br>
+                            <span>50</span>
+                        </p>
+                    </div>
+                    <div class="col-sm-6 text-center">
+                        <p style="line-height:400%"> Adoption
+                            <br>
+                            <span style="font-size:20px;font-weight:bold;">50%</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2 col-sm-offset-1" style="background:blue">
+            </div>
+            <div class="col-sm-4 col-sm-offset-1" style="background:red">
+            </div>
+            <div class="col-sm-2 col-sm-offset-1" style="background:green">
+            </div>
+        </div>
+        <div id="loginstat" class="row marginspace">
+            <div class="col-sm-10 col-sm-offset-1" id="statchart">
+            </div>
+        </div>
+        <div id="mangementtable" class="row marginspace">
+            <div id="scenariotable" class="col-sm-4 col-sm-offset-1">
+                <table class="table table-condensed">
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Owner</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>3</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>4</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="commenttable" class="col-sm-5 col-sm-offset-1">
+                <table class="table table-condensed">
+                    <tr>
+                        <th>Title</th>
+                        <th>Owner</th>
+                        <th>Scenario</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="network" class="row marginspace">
+            <div class="col-sm-10 col-sm-offset-1" style="position:relative">
+                <div id="socialnetwork" style="width:1100px; height: 500px;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="evaluation" class="tabcontent">
+        <div class="row">
+            <div class="col-sm-12" class="mapbtn" id="evaluationmapbtn">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <button class="button button-action button-rounded button-small layertype">Field</button>
+                        <button class="button button-primary button-rounded button-small layertype">Subbasin</button>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="bmpsetupbtns" style="float:right">
+                            <button class="button  button-royal button-rounded button-small bmpbtn" id="ct">Conservation Tillage</button>
+                            <button class="button  button-royal  button-rounded button-small  bmpbtn" id="cc">Covercrop</button>
+                            <button class="button  button-royal  button-rounded button-small  bmpbtn" id="nm">Nutrient Management</button>
+                            <button class="button  button-royal  button-rounded button-small  bmpbtn" id="wc">WasCobs</button>
+                            <!-- <button class="button button-highlight  button-rounded button-small  " id="allselection">All Selection</button> -->
+                            <button class="button button-highlight  button-rounded button-small  " id="clearselection">Clear</button>
+                        </div>
+                        <div class="bmpresultbtns" style="float:right">
+                            <button class="button button-action button-rounded button-small resultbtn" id="flow">Flow</button>
+                            <button class="button button-action  button-rounded button-small resultbtn" id="sediment">Sediment</button>
+                            <button class="button button-action  button-rounded button-small resultbtn" id="tn">Total N</button>
+                            <button class="button button-action  button-rounded button-small resultbtn" id="tp">Total P</button>
+                            <button class="button button-primary  button-rounded button-small resultbtn" id="cost">Cost</button>
+                            <button class="button button-primary  button-rounded button-small resultbtn" id="revenue">Revenue</button>
+                            <button class="button button-primary  button-rounded button-small resultbtn" id="netreturn">Net Return</button>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input class="searchinput" type="text" placeholder="Search">
+                        <button class="button button-caution  button-rounded button-small " id="bmpconfigreset" style="float:right; margin-left: 10px;">Reset</button>
+                        <button class="button button-caution button-rounded button-small " id="runmodel" style="float: right; ">Start Simulation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-12" id="evaluationmap">
+                    </div>
+                    <div class="col-sm-12 chart" id="evaluationchart">
+                    </div>
+                    <div id="feature-info">
+                    </div>
+                    <div id="result-feature-info">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="col-sm-12 bmptable">
+                        <table class="table table-condensed table-hover" id="evaluationTable">
+                            <tr>
+                                <th style="padding-top:11px;">ID</th>
+                                <th style="padding-top:11px;">CC</th>
+                                <th style="padding-top:11px;">CT</th>
+                                <th style="padding-top:11px;">NM</th>
+                                <th style="padding-top:11px;">WasCobs</th>
+                                <th style="padding-top:11px;">Del</th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-sm-12" id="evaluationreport">
+                        <div class="reportenter row">
+                            <div class="col-sm-12">
+                                <a id="generatereportbtn" class="button button-action button-rounded button-small execbtn">Generate Report</a>
+                            </div>
+                        </div>
+                        <div class="reportexit row">
+                            <div class="divide col-sm-5 text-right">
+                                <a class="button button-action button-rounded button-small" id="reporthtml"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> HTML</a>
+                            </div>
+                            <div class="col-sm-5 text-left">
+                                <a class="button button-action button-rounded button-small" id="reportpdf"><span class="glyphicon glyphicon-download" aria-hidden="true"></span> PDF</a>
+                            </div>
+                            <div class="col-sm-2">
+                                <a class="button button-action button-rounded button-small" id="closereport" style="float:right"> <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="optimization" class="tabcontent">
+        <div class="row">
+            <div class="col-sm-12" class="mapbtn" id="optimizationmapbtn">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <button class="button button-highlight  button-rounded button-small  optimizationtype" style="font-size: 20px;">Environment</button>
+                        <button class="button button-highlight button-rounded button-small  optimizationtype" disabled>Economic</button>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="bmpoptimizationbtns" style="float:right">
+                            <button class="button button-action button-rounded button-small resultbtn">Flow</button>
+                            <button class="button button-action  button-rounded button-small resultbtn">Sediment</button>
+                            <button class="button button-action  button-rounded button-small resultbtn">Total N</button>
+                            <button class="button button-action  button-rounded button-small resultbtn">Total P</button>
+                            <button class="button button-primary  button-rounded button-small resultbtn">Cost</button>
+                            <button class="button button-primary  button-rounded button-small resultbtn">Revenue</button>
+                            <button class="button button-primary  button-rounded button-small resultbtn">Net Return</button>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input class="searchinput" type="text" placeholder="Search">
+                        <button class="button button-caution button-rounded button-small" id="runoptimization" style="float:right">Start Optimization</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-12" id="optimizationmap">
+                    </div>
+                    <div class="col-sm-12 chart" id="optimizationchart">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="col-sm-12 bmptable">
+                        <table class="table table-condensed table-hover" id="optmizationTable">
+                            <tr>
+                                <th style="padding-top:11px;">ID</th>
+                                <th style="padding-top:11px;">CC</th>
+                                <th style="padding-top:11px;">CT</th>
+                                <th style="padding-top:11px;">NM</th>
+                                <th style="padding-top:11px;">WasCobs</th>
+                            </tr>
+                            <tr>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                                <td style="padding-top:11px;"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-sm-12" id="optimizationreport" class="hdivide">
+                        <div class="reportenter row">
+                            <div class="col-sm-12">
+                                <a id="generatereportbtn2" class="button button-action button-rounded button-small execbtn">Generate Report</a>
+                            </div>
+                        </div>
+                        <div class="reportexit row">
+                            <div class="divide col-sm-5 text-right">
+                                <a class="button button-action button-rounded button-small" id="reporthtml2"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> HTML</a>
+                            </div>
+                            <div class="col-sm-5 text-left">
+                                <a class="button button-action button-rounded button-small" id="reportpdf2"><span class="glyphicon glyphicon-download" aria-hidden="true"></span> PDF</a>
+                            </div>
+                            <div class="col-sm-2">
+                                <a class="button button-action button-rounded button-small" id="closereport2" style="float:right"> <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loading-page">
+        <div id="loading-info">
+            <div class="row">
+                <div class="col-sm-8 col-sm-push-2">
+                    <div class="row" style="margin-top: 150px;">
+                        <div class="col-sm-4 text-right">
+                            <img src="/static/administration/assets/images/loading.gif" alt="">
+                        </div>
+                        <div class="col-sm-7 col-sm-push-1">
+                            <div id="progress-info">
+                                <div id="box1">
+                                    <p><span> Preparing modeling files ... </span></p>
+                                </div>
+                                <div id="box2">
+                                    <p><span> Modeling BMPs ... </span></p>
+                                </div>
+                                <div id="box3">
+                                    <p><span> Writing results to database ... </span></p>
+                                </div>
+                                <div id="box4">
+                                    <p><span> Visualizing the output ... </span></p>
+                                </div>
+                                <div id="box5">
+                                    <p><span> Thanks for your patience ... </span></p>
+                                </div>
+                                <div id="box6">
+                                    <p><span> Finishing in seconds ... </span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+</script>
+<script src="/static/administration/dist/bundle.js"></script>
+</script>
+
+</html>

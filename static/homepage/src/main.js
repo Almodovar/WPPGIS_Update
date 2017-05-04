@@ -148,5 +148,5 @@ leftButton.addEventListener("click",function(){
 });
 
 rightButton.addEventListener("click",function(){
-    window.location.href = "http://localhost:8080/private";
+    window.location.href = "http://localhost:8080/login";
 });

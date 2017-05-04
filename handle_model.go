@@ -562,7 +562,7 @@ type FeatureResultType struct {
 	ResultType string
 }
 
-func HandleChart(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleChart(w http.ResponseWriter, r *http.Request) {
 	var d FeatureResultType
 	err := json.NewDecoder(r.Body).Decode(&d)
 	if err != nil {

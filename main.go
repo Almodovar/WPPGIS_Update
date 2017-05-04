@@ -84,6 +84,7 @@ func main() {
 	})
 
 	router.HandleFunc("/runmodel", HandleModelRun)
+	router.HandleFunc("/chart", HandleChart)
 	router.HandleFunc("/drawecooutletchart", HandleEcoOutletChart)
 
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))

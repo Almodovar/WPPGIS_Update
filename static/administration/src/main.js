@@ -984,8 +984,18 @@ document.getElementById("bmpconfigreset").addEventListener("click", function() {
     $(".bmpsetupbtns").show("slow");
     document.getElementById("bmpconfigreset").disabled = true;
     document.getElementById('runmodel').disabled = false;
-
+    evaluationmap.getLayers().getArray()[3].setStyle(fieldStyle);
+    document.getElementById("evaluationTable").innerHTML = `<tr>
+                                <th style="padding-top:11px;">ID</th>
+                                <th style="padding-top:11px;">CC</th>
+                                <th style="padding-top:11px;">CT</th>
+                                <th style="padding-top:11px;">NM</th>
+                                <th style="padding-top:11px;">WasCobs</th>
+                                <th style="padding-top:11px;">Del</th>
+                            </tr>`;
 });
+
+
 
 // document.addEventListener("click", function(evt) {
 //     if (hasClass(evt.target, 'optimizationtype') || hasClass(evt.target, 'bmpbtn') || hasClass(evt.target, 'resultbtn') || hasClass(evt.target, 'layertype')) {
@@ -1430,6 +1440,7 @@ var selectedStyle = new ol.style.Style({
         color: 'white'
     })
 });
+
 selectSingleClick.on('select', function(event) {
     // $(element).hide();
     selectedFeature = event.selected[0];
@@ -1879,7 +1890,6 @@ $("#runmodel").click(function(event) {
                 // $(element).hide();
                 var selectedFeature = event.selected[0];
                 if (selectedFeature) {
-                    selectedFeature.setStyle(selectedStyle);
                     if (document.getElementById("runmodel").disabled === false) {
                         var id = selectedFeature.getProperties().Name;
                         if (fieldBMPAssignment[id] === undefined) {
@@ -1915,12 +1925,12 @@ $("#runmodel").click(function(event) {
                     } else {
                         var b = evaluationmap.getLayers().getArray()[1];
                         b.setStyle(outletDefaultStyle);
-                        // drawFeatureChart();
+                        drawFeatureChart(selectedFeature);
                     }
                 } else {
                     var a = evaluationmap.getLayers().getArray()[1];
                     a.setStyle(outletSelectStyle);
-                    resultMapSingleClick.getFeatures().clear();
+                    selectSingleClick.getFeatures().clear();
                     if ($('#flow').prop("disabled") === true) {
                         drawOutletChart("flow");
                     }
@@ -2023,7 +2033,7 @@ $("#runmodel").click(function(event) {
             evaluationmap.addInteraction(selectSingleClick);
             evaluationmap.addInteraction(selectPointerMove);
 
-
+            drawOutletChart("flow");
             $("#loading-page").css("visibility", "hidden");
         }
     });
@@ -2035,7 +2045,7 @@ $("#flow").click(function(event) {
     a.setStyle(styleFlowFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
-    // drawOutletChart("flow");
+    drawOutletChart("flow");
     $("#flow").attr("disabled", true);
     $("#flow").siblings().attr("disabled", false);
 
@@ -2047,7 +2057,7 @@ $("#sediment").click(function(event) {
     a.setStyle(styleSedimentFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
-    // drawOutletChart("sediment");
+    drawOutletChart("sediment");
     $("#sediment").attr("disabled", true);
     $("#sediment").siblings().attr("disabled", false);
 });
@@ -2058,10 +2068,9 @@ $("#tn").click(function(event) {
     a.setStyle(styleTnFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
-    // drawOutletChart("tn");
+    drawOutletChart("tn");
     $("#tn").attr("disabled", true);
     $("#tn").siblings().attr("disabled", false);
-
 });
 $("#tp").click(function(event) {
     /* Act on the event */
@@ -2070,7 +2079,7 @@ $("#tp").click(function(event) {
     a.setStyle(styleTpFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
-    // drawOutletChart("tp");
+    drawOutletChart("tp");
     $("#tp").attr("disabled", true);
     $("#tp").siblings().attr("disabled", false);
 });
@@ -2083,7 +2092,7 @@ $("#cost").click(function(event) {
     a.setStyle(styleCostFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
-    // drawOutletChart("cost");
+    drawOutletChart("cost");
     $("#cost").attr("disabled", true);
     $("#cost").siblings().attr("disabled", false);
 });
@@ -2095,7 +2104,7 @@ $("#revenue").click(function(event) {
     a.setStyle(styleRevenueFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
-    // drawOutletChart("revenue");
+    drawOutletChart("revenue");
     $('#revenue').attr("disabled", true);
     $('#revenue').siblings().attr("disabled", false);
 });
@@ -2107,531 +2116,598 @@ $("#netreturn").click(function(event) {
     a.setStyle(styleNetReturnFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
-    // drawOutletChart("netreturn");
+    drawOutletChart("netreturn");
     $('#netreturn').attr("disabled", true);
     $('#netreturn').siblings().attr("disabled", false);
 });
 
-// function drawOutletChart(s) {
-//     selectSingleClick.getFeatures().clear();
+function drawOutletChart(s) {
+    selectSingleClick.getFeatures().clear();
 
-//     var data = [];
-//     if (s === "sediment") {
-//         data = outletSediment;
+    var data = [];
+    var dataAverage = [];
+    var sum = 0;
+    if (s === "sediment") {
+        data = outletSediment;
+        for (var i = 0; i < data.length; i++) {
+            sum = sum + data[i];
+        }
+        for (var i = 0; i < data.length; i++) {
+            dataAverage.push(sum / data.length);
+        }
+        Highcharts.chart('evaluationchart', {
+            title: {
+                text: '',
+                x: -20 //center
+            },
 
-//         Highcharts.chart('evaluationchart', {
-//             chart: {
-//                 zoomType: 'xy'
-//             },
-//             title: {
-//                 text: '',
-//             },
-//             // subtitle: {
-//             //     text: 'Source: WorldClimate.com'
-//             // },
-//             credits: {
-//                 enabled: false
-//             },
-//             xAxis: [{
-//                 categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                     '2008', '2009', '2010', '2011'
-//                 ],
-//                 crosshair: true
-//             }],
-//             yAxis: [{ // Primary yAxis
-//                 labels: {
-//                     format: '$ ',
-//                     style: {
-//                         color: Highcharts.getOptions().colors[1]
-//                     }
-//                 },
-//                 title: {
-//                     text: 'BMP Cost',
-//                     style: {
-//                         color: Highcharts.getOptions().colors[1]
-//                     }
-//                 }
-//             }, { // Secondary yAxis
-//                 title: {
-//                     text: "",
-//                     style: {
-//                         color: Highcharts.getOptions().colors[0]
-//                     }
-//                 },
-//                 labels: {
-//                     format: '',
-//                     style: {
-//                         color: Highcharts.getOptions().colors[0]
-//                     }
-//                 },
-//                 opposite: true
-//             }],
-//             tooltip: {
-//                 shared: true
-//             },
-//             legend: {
-//                 layout: 'vertical',
-//                 align: 'left',
-//                 x: 120,
-//                 verticalAlign: 'top',
-//                 y: 20,
-//                 floating: true,
-//                 backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
-//                 enabled: false
-//             },
-//             series: [{
-//                 name: 'NetReturn',
-//                 type: 'column',
-//                 yAxis: 1,
-//                 data: data,
-//                 tooltip: {
-//                     valueSuffix: ' $'
-//                 }
+            xAxis: {
+                categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                    '2008', '2009', '2010', '2011'
+                ]
+            },
+            yAxis: {
+                title: {
+                    text: "Sediment (kg/ha/year)"
+                },
+                lineWidth: 1,
 
-//             }, {
-//                 name: "Yr",
-//                 type: 'spline',
-//                 data: data,
-//                 tooltip: {
-//                     valueSuffix: " "
-//                 }
-//             }]
-//         });
-//     }
-//     if (s === "flow") {
-//         data = outletFlow;
-//         $('#evaluationchart').highcharts({
-//             title: {
-//                 text: '',
-//                 x: -20 //center
-//             },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            credits: {
+                enabled: false
+            },
+            tooltip: {
+                valueSuffix: ''
+            },
+            legend: {
+                enabled: false
+            },
+            series: [{
+                name: 'Average',
+                data: data
+            }, {
+                name: 'Yr',
+                data: dataAverage,
+                color: '#99EAA4'
+            }]
+        });
+    }
+    if (s === "flow") {
+        data = outletFlow;
+        for (var i = 0; i < data.length; i++) {
+            sum = sum + data[i];
+        }
+        for (var i = 0; i < data.length; i++) {
+            dataAverage.push(sum / data.length);
+        }
+        Highcharts.chart('evaluationchart', {
+            title: {
+                text: '',
+                x: -20 //center
+            },
 
-//             xAxis: {
-//                 categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                     '2008', '2009', '2010', '2011'
-//                 ]
-//             },
-//             yAxis: {
-//                 title: {
-//                     text: 'Flow' + " ( mm/year )"
-//                 },
-//                 lineWidth: 1,
-//                 plotLines: [{
-//                     value: 0,
-//                     width: 1,
-//                     color: '#808080'
-//                 }]
-//             },
-//             credits: {
-//                 enabled: false
-//             },
-//             tooltip: {
-//                 valueSuffix: ''
-//             },
-//             legend: {
-//                 enabled: false
-//             },
-//             series: [{
-//                 name: 'Yr',
-//                 data: data
-//             }]
-//         });
-//     }
-//     if (s === "tp") {
-//         data = outletTp;
-//         $('#evaluationchart').highcharts({
-//             title: {
-//                 text: '',
-//                 x: -20 //center
-//             },
+            xAxis: {
+                categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                    '2008', '2009', '2010', '2011'
+                ]
+            },
+            yAxis: {
+                title: {
+                    text: "Flow (mm/ha/year)"
+                },
+                lineWidth: 1,
 
-//             xAxis: {
-//                 categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                     '2008', '2009', '2010', '2011'
-//                 ]
-//             },
-//             yAxis: {
-//                 title: {
-//                     text: 'Total P' + " ( kg/ha/year )"
-//                 },
-//                 lineWidth: 1,
-//                 plotLines: [{
-//                     value: 0,
-//                     width: 1,
-//                     color: '#808080'
-//                 }]
-//             },
-//             credits: {
-//                 enabled: false
-//             },
-//             tooltip: {
-//                 valueSuffix: ''
-//             },
-//             legend: {
-//                 enabled: false
-//             },
-//             series: [{
-//                 name: 'Yr',
-//                 data: data
-//             }]
-//         });
-//     }
-//     if (s === "tn") {
-//         data = outletTn;
-//         $('#evaluationchart').highcharts({
-//             title: {
-//                 text: '',
-//                 x: -20 //center
-//             },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            credits: {
+                enabled: false
+            },
+            tooltip: {
+                valueSuffix: ''
+            },
+            legend: {
+                enabled: false
+            },
+            series: [{
+                name: 'Average',
+                data: data
+            }, {
+                name: 'Yr',
+                data: dataAverage,
+                color: '#99EAA4'
+            }]
+        });
+    }
+    if (s === "tp") {
+        data = outletTp;
+        for (var i = 0; i < data.length; i++) {
+            sum = sum + data[i];
+        }
+        for (var i = 0; i < data.length; i++) {
+            dataAverage.push(sum / data.length);
+        }
+        Highcharts.chart('evaluationchart', {
+            title: {
+                text: '',
+                x: -20 //center
+            },
 
-//             xAxis: {
-//                 categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                     '2008', '2009', '2010', '2011'
-//                 ]
-//             },
-//             yAxis: {
-//                 title: {
-//                     text: 'Total N' + " ( kg/ha/year )"
-//                 },
-//                 lineWidth: 1,
-//                 plotLines: [{
-//                     value: 0,
-//                     width: 1,
-//                     color: '#808080'
-//                 }]
-//             },
-//             credits: {
-//                 enabled: false
-//             },
-//             tooltip: {
-//                 valueSuffix: ''
-//             },
-//             legend: {
-//                 enabled: false
-//             },
-//             series: [{
-//                 name: 'Yr',
-//                 data: data
-//             }]
-//         });
-//     }
+            xAxis: {
+                categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                    '2008', '2009', '2010', '2011'
+                ]
+            },
+            yAxis: {
+                title: {
+                    text: "Total P (kg/ha/year)"
+                },
+                lineWidth: 1,
 
-//     if (s === "cost") {
-//         var ecoType = JSON.stringify(s);
-//         $.ajax({
-//             url: '/drawecooutletchart',
-//             type: "post",
-//             contentType: 'application/json; charset=utf-8',
-//             data: ecoType,
-//             dataType: 'json',
-//             success: function(r) {
-//                 // console.log(r);
-//                 var averageCost = 0;
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            credits: {
+                enabled: false
+            },
+            tooltip: {
+                valueSuffix: ''
+            },
+            legend: {
+                enabled: false
+            },
+            series: [{
+                name: 'Average',
+                data: data
+            }, {
+                name: 'Yr',
+                data: dataAverage,
+                color: '#99EAA4'
+            }]
+        });
 
-//                 for (i = 0; i < r.length; i++) {
-//                     data.push(r[i]);
-//                     averageCost += r[i];
-//                 }
+    }
+    if (s === "tn") {
+        data = outletTn;
+        for (var i = 0; i < data.length; i++) {
+            sum = sum + data[i];
+        }
+        for (var i = 0; i < data.length; i++) {
+            dataAverage.push(sum / data.length);
+        }
+        Highcharts.chart('evaluationchart', {
+            title: {
+                text: '',
+                x: -20 //center
+            },
 
-//                 outlet.setProperties({
-//                     "cost": averageCost / r.length,
-//                 });
+            xAxis: {
+                categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                    '2008', '2009', '2010', '2011'
+                ]
+            },
+            yAxis: {
+                title: {
+                    text: "Total N (kg/ha/year)"
+                },
+                lineWidth: 1,
 
-//                 $('#evaluationchart').highcharts({
-//                     title: {
-//                         text: '',
-//                         x: -20 //center
-//                     },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            credits: {
+                enabled: false
+            },
+            tooltip: {
+                valueSuffix: ''
+            },
+            legend: {
+                enabled: false
+            },
+            series: [{
+                name: 'Average',
+                data: data
+            }, {
+                name: 'Yr',
+                data: dataAverage,
+                color: '#99EAA4'
+            }]
+        });
 
-//                     xAxis: {
-//                         categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                             '2008', '2009', '2010', '2011'
-//                         ]
-//                     },
-//                     yAxis: {
-//                         title: {
-//                             text: 'Cost' + " ( dollar )"
-//                         },
-//                         lineWidth: 1,
-//                         plotLines: [{
-//                             value: 0,
-//                             width: 1,
-//                             color: '#808080'
-//                         }]
-//                     },
-//                     credits: {
-//                         enabled: false
-//                     },
-//                     tooltip: {
-//                         valueSuffix: ''
-//                     },
-//                     legend: {
-//                         enabled: false
-//                     },
-//                     series: [{
-//                         name: 'Yr',
-//                         data: data
-//                     }]
-//                 });
-//             }
-//         });
-//     }
-//     if (s === "revenue") {
-//         var ecoType = JSON.stringify(s);
-//         $.ajax({
-//             url: '/drawecooutletchart',
-//             type: "post",
-//             contentType: 'application/json; charset=utf-8',
-//             data: ecoType,
-//             dataType: 'json',
-//             success: function(r) {
-//                 // console.log(r);
+    }
 
-//                 var averageRevenue = 0;
-//                 for (i = 0; i < r.length; i++) {
-//                     data.push(r[i]);
-//                     averageRevenue += r[i];
-//                 }
+    if (s === "cost") {
+        var ecoType = JSON.stringify(s);
+        $.ajax({
+            url: '/drawecooutletchart',
+            type: "post",
+            contentType: 'application/json; charset=utf-8',
+            data: ecoType,
+            dataType: 'json',
+            success: function(r) {
+                // console.log(r);
+                var averageCost = 0;
+                var dataAverage = [];
+                for (i = 0; i < r.length; i++) {
+                    data.push(r[i]);
+                    averageCost += r[i];
+                }
 
-//                 outlet.setProperties({
-//                     "revenue": averageRevenue / r.length,
-//                 });
+                outlet.setProperties({
+                    "cost": averageCost / r.length,
+                });
 
-//                 $('#evaluationchart').highcharts({
-//                     title: {
-//                         text: '',
-//                         x: -20 //center
-//                     },
+                for (j = 0; j < data.length; j++) {
+                    dataAverage.push(outlet.getProperties().cost);
+                }
 
-//                     xAxis: {
-//                         categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                             '2008', '2009', '2010', '2011'
-//                         ]
-//                     },
-//                     yAxis: {
-//                         title: {
-//                             text: 'Revenue' + " ( dollar )"
-//                         },
-//                         lineWidth: 1,
-//                         plotLines: [{
-//                             value: 0,
-//                             width: 1,
-//                             color: '#808080'
-//                         }]
-//                     },
-//                     credits: {
-//                         enabled: false
-//                     },
-//                     tooltip: {
-//                         valueSuffix: ''
-//                     },
-//                     legend: {
-//                         enabled: false
-//                     },
-//                     series: [{
-//                         name: 'Yr',
-//                         data: data
-//                     }]
-//                 });
-//             }
-//         });
-//     }
-//     if (s === "netreturn") {
-//         var ecoType = JSON.stringify(s);
-//         $.ajax({
-//             url: '/drawecooutletchart',
-//             type: "post",
-//             contentType: 'application/json; charset=utf-8',
-//             data: ecoType,
-//             dataType: 'json',
-//             success: function(r) {
-//                 // console.log(r);
+                Highcharts.chart('evaluationchart', {
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
 
-//                 var averageNetreturn = 0;
+                    xAxis: {
+                        categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                            '2008', '2009', '2010', '2011'
+                        ]
+                    },
+                    yAxis: {
+                        title: {
+                            text: "Cost (dollar)"
+                        },
+                        lineWidth: 1,
 
-//                 for (i = 0; i < r.length; i++) {
-//                     data.push(r[i]);
-//                     averageNetreturn += r[i];
-//                 }
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        valueSuffix: ''
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Average',
+                        data: data
+                    }, {
+                        name: 'Yr',
+                        data: dataAverage,
+                        color: '#99EAA4'
+                    }]
+                });
+            }
+        });
+    }
+    if (s === "revenue") {
+        var ecoType = JSON.stringify(s);
+        $.ajax({
+            url: '/drawecooutletchart',
+            type: "post",
+            contentType: 'application/json; charset=utf-8',
+            data: ecoType,
+            dataType: 'json',
+            success: function(r) {
+                // console.log(r);
 
+                var averageRevenue = 0;
+                for (i = 0; i < r.length; i++) {
+                    data.push(r[i]);
+                    averageRevenue += r[i];
+                }
 
-//                 outlet.setProperties({
-//                     "netreturn": averageNetreturn / r.length,
-//                 });
+                outlet.setProperties({
+                    "revenue": averageRevenue / r.length,
+                });
 
-//                 $('#evaluationchart').highcharts({
-//                     title: {
-//                         text: '',
-//                         x: -20 //center
-//                     },
+                var dataAverage = [];
+                for (j = 0; j < data.length; j++) {
+                    dataAverage.push(outlet.getProperties().revenue);
+                }
 
-//                     xAxis: {
-//                         categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                             '2008', '2009', '2010', '2011'
-//                         ]
-//                     },
-//                     yAxis: {
-//                         title: {
-//                             text: 'Net Return' + " ( dollar )"
-//                         },
-//                         lineWidth: 1,
-//                         plotLines: [{
-//                             value: 0,
-//                             width: 1,
-//                             color: '#808080'
-//                         }]
-//                     },
-//                     credits: {
-//                         enabled: false
-//                     },
-//                     tooltip: {
-//                         valueSuffix: ''
-//                     },
-//                     legend: {
-//                         enabled: false
-//                     },
-//                     series: [{
-//                         name: 'Yr',
-//                         data: data
-//                     }]
-//                 });
-//             }
-//         });
-//     }
-// }
+                Highcharts.chart('evaluationchart', {
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
 
-// function drawFeatureChart() {
-//     var feature = new Object();
-//     feature.ID = parseInt(selectedResultFeature.getProperties().name);
-//     feature.Type = determineFeatureType();
-//     feature.ResultType = determineFeatureResultType();
+                    xAxis: {
+                        categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                            '2008', '2009', '2010', '2011'
+                        ]
+                    },
+                    yAxis: {
+                        title: {
+                            text: "Revenue (dollar)"
+                        },
+                        lineWidth: 1,
+
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        valueSuffix: ''
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Average',
+                        data: data
+                    }, {
+                        name: 'Yr',
+                        data: dataAverage,
+                        color: '#99EAA4'
+                    }]
+                });
+            }
+        });
+    }
+    if (s === "netreturn") {
+        var ecoType = JSON.stringify(s);
+        $.ajax({
+            url: '/drawecooutletchart',
+            type: "post",
+            contentType: 'application/json; charset=utf-8',
+            data: ecoType,
+            dataType: 'json',
+            success: function(r) {
+                // console.log(r);
+
+                var averageNetreturn = 0;
+
+                for (i = 0; i < r.length; i++) {
+                    data.push(r[i]);
+                    averageNetreturn += r[i];
+                }
 
 
-//     var featureJson = JSON.stringify(feature);
-//     $.ajax({
-//         url: '/chart',
-//         type: "post",
-//         contentType: 'application/json; charset=utf-8',
-//         data: featureJson,
-//         dataType: 'json',
-//         success: function(r) {
-//             var dataArray = [];
+                outlet.setProperties({
+                    "netreturn": averageNetreturn / r.length,
+                });
 
-//             for (var i = 0; i < r.length; i++) {
-//                 r[i] = parseFloat(Math.round(r[i] * 100) / 100).toFixed(6);
-//                 dataArray[i] = parseFloat(r[i]);
-//             }
-//             // alert(r);
 
-//             var average = [];
-//             var averageNum;
-//             var chartYTitle;
+                var dataAverage = [];
+                for (j = 0; j < data.length; j++) {
+                    dataAverage.push(outlet.getProperties().netreturn);
+                }
 
-//             if (feature.ResultType == "sediment") {
-//                 averageNum = selectedResultFeature.getProperties().sediment;
-//                 averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
-//                 for (i = 0; i < 10; i++) {
-//                     average[i] = averageNum;
-//                 }
-//                 chartYTitle = "Sedimet (ton/ha/year)";
-//             }
-//             if (feature.ResultType == "flow") {
-//                 averageNum = selectedResultFeature.getProperties().flow;
-//                 averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
-//                 for (i = 0; i < 10; i++) {
-//                     average[i] = averageNum;
-//                 }
-//                 chartYTitle = "Water (mm/year)";
+                Highcharts.chart('evaluationchart', {
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
 
-//             }
-//             if (feature.ResultType == "tn") {
-//                 averageNum = selectedResultFeature.getProperties().tn;
-//                 averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
-//                 for (i = 0; i < 10; i++) {
-//                     average[i] = averageNum;
-//                 }
-//                 chartYTitle = "Total N (kg/ha/year)";
+                    xAxis: {
+                        categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                            '2008', '2009', '2010', '2011'
+                        ]
+                    },
+                    yAxis: {
+                        title: {
+                            text: "Cost (dollar)"
+                        },
+                        lineWidth: 1,
 
-//             }
-//             if (feature.ResultType == "tp") {
-//                 averageNum = selectedResultFeature.getProperties().tp;
-//                 averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
-//                 for (i = 0; i < 10; i++) {
-//                     average[i] = averageNum;
-//                 }
-//                 chartYTitle = "Total P (kg/ha/year)";
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        valueSuffix: ''
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Average',
+                        data: data
+                    }, {
+                        name: 'Yr',
+                        data: dataAverage,
+                        color: '#99EAA4'
+                    }]
+                });
+            }
+        });
+    }
+}
 
-//             }
-//             if (feature.ResultType == "cost") {
-//                 averageNum = selectedResultFeature.getProperties().cost;
-//                 averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
-//                 for (i = 0; i < 10; i++) {
-//                     average[i] = averageNum;
-//                 }
-//                 chartYTitle = "Cost (dollar)";
 
-//             }
-//             if (feature.ResultType == "revenue") {
-//                 averageNum = selectedResultFeature.getProperties().revenue;
-//                 averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
-//                 for (i = 0; i < 10; i++) {
-//                     average[i] = averageNum;
-//                 }
-//                 chartYTitle = "Revenue (dollar)";
+function determineFeatureType() {
+    if ($('#show-field-map-result').prop("disabled") === true) {
+        return "field";
+    } else
+        return "subbasin";
+}
 
-//             }
-//             if (feature.ResultType == "netreturn") {
-//                 averageNum = selectedResultFeature.getProperties().netreturn;
-//                 averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
-//                 for (i = 0; i < 10; i++) {
-//                     average[i] = averageNum;
-//                 }
-//                 chartYTitle = "Net Return (dollar)";
+function determineFeatureResultType() {
+    if ($('#flow').prop("disabled") === true) {
+        return "flow";
+    }
+    if ($('#sediment').prop("disabled") === true) {
+        return "sediment";
+    }
+    if ($('#tn').prop("disabled") === true) {
+        return "tn";
+    }
+    if ($('#tp').prop("disabled") === true) {
+        return "tp";
+    }
+    if ($('#cost').prop("disabled") === true) {
+        return "cost";
+    }
+    if ($('#revenue').prop("disabled") === true) {
+        return "revenue";
+    }
+    if ($('#netreturn').prop("disabled") === true) {
+        return "netreturn";
+    }
+}
 
-//             }
+function drawFeatureChart(selectedFeature) {
+    var feature = new Object();
+    feature.ID = parseInt(selectedFeature.getProperties().name);
+    feature.Type = "field";
+    feature.ResultType = determineFeatureResultType();
 
-//             $('#evaluationchart').highcharts({
-//                 title: {
-//                     text: '',
-//                     x: -20 //center
-//                 },
 
-//                 xAxis: {
-//                     categories: ['2002', '2003', '2004', '2005', '2006', '2007',
-//                         '2008', '2009', '2010', '2011'
-//                     ]
-//                 },
-//                 yAxis: {
-//                     title: {
-//                         text: chartYTitle
-//                     },
-//                     lineWidth: 1,
+    var featureJson = JSON.stringify(feature);
+    $.ajax({
+        url: '/chart',
+        type: "post",
+        contentType: 'application/json; charset=utf-8',
+        data: featureJson,
+        dataType: 'json',
+        success: function(r) {
+            var dataArray = [];
 
-//                     plotLines: [{
-//                         value: 0,
-//                         width: 1,
-//                         color: '#808080'
-//                     }]
-//                 },
-//                 credits: {
-//                     enabled: false
-//                 },
-//                 tooltip: {
-//                     valueSuffix: ''
-//                 },
-//                 legend: {
-//                     enabled: false
-//                 },
-//                 series: [{
-//                     name: 'Average',
-//                     data: average
-//                 }, {
-//                     name: 'Yr',
-//                     data: dataArray,
-//                     color: '#99EAA4'
-//                 }]
-//             });
-//             // $("#sel1").val(selectedResultFeature.getProperties().name);
-//         }
-//     });
-// }
+            for (var i = 0; i < r.length; i++) {
+                r[i] = parseFloat(Math.round(r[i] * 100) / 100).toFixed(6);
+                dataArray[i] = parseFloat(r[i]);
+            }
+            // alert(r);
+
+            var average = [];
+            var averageNum;
+            var chartYTitle;
+
+            if (feature.ResultType == "sediment") {
+                averageNum = selectedFeature.getProperties().sediment;
+                averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
+                for (i = 0; i < 10; i++) {
+                    average[i] = averageNum;
+                }
+                chartYTitle = "Sedimet (ton/ha/year)";
+            }
+            if (feature.ResultType == "flow") {
+                averageNum = selectedFeature.getProperties().flow;
+                averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
+                for (i = 0; i < 10; i++) {
+                    average[i] = averageNum;
+                }
+                chartYTitle = "Water (mm/year)";
+
+            }
+            if (feature.ResultType == "tn") {
+                averageNum = selectedFeature.getProperties().tn;
+                averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
+                for (i = 0; i < 10; i++) {
+                    average[i] = averageNum;
+                }
+                chartYTitle = "Total N (kg/ha/year)";
+
+            }
+            if (feature.ResultType == "tp") {
+                averageNum = selectedFeature.getProperties().tp;
+                averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
+                for (i = 0; i < 10; i++) {
+                    average[i] = averageNum;
+                }
+                chartYTitle = "Total P (kg/ha/year)";
+
+            }
+            if (feature.ResultType == "cost") {
+                averageNum = selectedFeature.getProperties().cost;
+                averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
+                for (i = 0; i < 10; i++) {
+                    average[i] = averageNum;
+                }
+                chartYTitle = "Cost (dollar)";
+
+            }
+            if (feature.ResultType == "revenue") {
+                averageNum = selectedFeature.getProperties().revenue;
+                averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
+                for (i = 0; i < 10; i++) {
+                    average[i] = averageNum;
+                }
+                chartYTitle = "Revenue (dollar)";
+
+            }
+            if (feature.ResultType == "netreturn") {
+                averageNum = selectedFeature.getProperties().netreturn;
+                averageNum = parseFloat((Math.round(averageNum * 100) / 100).toFixed(6));
+                for (i = 0; i < 10; i++) {
+                    average[i] = averageNum;
+                }
+                chartYTitle = "Net Return (dollar)";
+
+            }
+            Highcharts.chart('evaluationchart', {
+                title: {
+                    text: '',
+                    x: -20 //center
+                },
+
+                xAxis: {
+                    categories: ['2002', '2003', '2004', '2005', '2006', '2007',
+                        '2008', '2009', '2010', '2011'
+                    ]
+                },
+                yAxis: {
+                    title: {
+                        text: chartYTitle
+                    },
+                    lineWidth: 1,
+
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Average',
+                    data: average
+                }, {
+                    name: 'Yr',
+                    data: dataArray,
+                    color: '#99EAA4'
+                }]
+            });
+
+            // $("#sel1").val(selectedResultFeature.getProperties().name);
+        }
+    });
+}

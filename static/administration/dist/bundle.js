@@ -13675,9 +13675,13 @@ document.getElementById('tab1').className += " active";
 
 document.getElementsByClassName("layertype")[0].disabled = true;
 document.getElementsByClassName("bmpbtn")[0].disabled = true;
+document.getElementById("runoptimization").disabled = true;
 
 $("#loading-page").css('height', 150);
-$("#loading-info").css('margin-top', ($("#loading-page").height() - 400) / 2);
+$("#loading-info").css('margin-top', ($("#loading-page2").height() - 400) / 2);
+
+$("#loading-page2").css('height', 150);
+$("#loading-info2").css('margin-top', ($("#loading-page2").height() - 400) / 2);
 
 document.getElementById('tab1').addEventListener("click", function(evt) {
     // Declare all variables
@@ -14791,6 +14795,15 @@ var fieldJsonp = new ol.layer.Vector({
     style: fieldStyle
 });
 
+
+var fieldJsonp2 = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        url: '/static/administration/assets/layers/field.json',
+        format: new ol.format.GeoJSON()
+    }),
+    style: fieldStyle
+});
+
 fieldJsonp.getSource().on('addfeature', function(event) {
     fieldFeatures = fieldJsonp.getSource().getFeatures();
     for (i = 0; i < fieldFeatures.length; i++) {
@@ -15053,6 +15066,106 @@ function styleNetReturnFunction(feature, resolution) {
     }
     return [styleCache[level]];
 }
+
+function optStyleSedimentFunction(feature, resolution) {
+    var properties = feature.getProperties();
+    var value = feature.getProperties().sediment;
+    if (value !== 0) {
+        var level = feature.getProperties().sedimentlevel;
+        if (!level || !SeverityLevel[level]) {
+            return [fieldStyle];
+        }
+        if (!styleCache[level]) {
+            styleCache[level] = new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: SeverityLevel[level]
+                }),
+                stroke: new ol.style.Stroke({
+                    color: "white",
+                    width: 1
+                })
+            });
+        }
+        return [styleCache[level]];
+    } else {
+        return fieldStyle;
+    }
+}
+
+function optStyleFlowFunction(feature, resolution) {
+    var properties = feature.getProperties();
+    var value = feature.getProperties().flow;
+    if (value !== 0) {
+        var level = feature.getProperties().flowlevel;
+        if (!level || !SeverityLevel[level]) {
+            return [fieldStyle];
+        }
+        if (!styleCache[level]) {
+            styleCache[level] = new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: SeverityLevel[level]
+                }),
+                stroke: new ol.style.Stroke({
+                    color: "white",
+                    width: 1
+                })
+            });
+        }
+        return [styleCache[level]];
+    } else {
+        return fieldStyle;
+    }
+}
+
+function optStyleTpFunction(feature, resolution) {
+    var properties = feature.getProperties();
+    var value = feature.getProperties().tp;
+    if (value !== 0) {
+        var level = feature.getProperties().tplevel;
+        if (!level || !SeverityLevel[level]) {
+            return [fieldStyle];
+        }
+        if (!styleCache[level]) {
+            styleCache[level] = new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: SeverityLevel[level]
+                }),
+                stroke: new ol.style.Stroke({
+                    color: "white",
+                    width: 1
+                })
+            });
+        }
+        return [styleCache[level]];
+    } else {
+        return fieldStyle;
+    }
+}
+
+function optStyleTnFunction(feature, resolution) {
+    var properties = feature.getProperties();
+    var value = feature.getProperties().tn;
+    if (value !== 0) {
+        var level = feature.getProperties().tnlevel;
+        if (!level || !SeverityLevel[level]) {
+            return [fieldStyle];
+        }
+        if (!styleCache[level]) {
+            styleCache[level] = new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: SeverityLevel[level]
+                }),
+                stroke: new ol.style.Stroke({
+                    color: "white",
+                    width: 1
+                })
+            });
+        }
+        return [styleCache[level]];
+    } else {
+        return fieldStyle;
+    }
+}
 // ****************************************************
 // the select interaction allows us to select features 
 // through two methods: hover and single click.  
@@ -15076,6 +15189,33 @@ var selectSingleClick = new ol.interaction.Select({
     layers: [fieldJsonp, outletLayer, subbasinJsonp],
     filter: function(feature, layer) {
         if (layer === fieldJsonp) {
+            if (feature.getProperties().Name > 600) {
+                return false;
+            }
+            return true;
+        }
+        return true;
+    },
+});
+
+var selectPointerMove2 = new ol.interaction.Select({
+    layers: [fieldJsonp2],
+    condition: ol.events.condition.pointerMove,
+    filter: function(feature, layer) {
+        if (layer === fieldJsonp2) {
+            if (feature.getProperties().Name > 600) {
+                return false;
+            }
+            return true;
+        }
+        return true;
+    },
+});
+
+var selectSingleClick2 = new ol.interaction.Select({
+    layers: [fieldJsonp2],
+    filter: function(feature, layer) {
+        if (layer === fieldJsonp2) {
             if (feature.getProperties().Name > 600) {
                 return false;
             }
@@ -15147,10 +15287,46 @@ selectSingleClick.on('select', function(event) {
     }
 });
 
+var optimizationFeatureList = [];
+
+selectSingleClick2.on('select', function(event) {
+    // $(element).hide();
+    selectedFeature = event.selected[0];
+    if (selectedFeature) {
+        var exist = false;
+        selectedFeature.setStyle(selectedStyle);
+        var id = selectedFeature.getProperties().Name;
+        // alert(optimizationFeatureList.length);
+        // alert(typeof id);
+        for (j = 0; j < optimizationFeatureList.length; j++) {
+            if (optimizationFeatureList[j] == id) {
+                exist = true;
+            }
+        }
+        if (exist === false) {
+            $('#optmizationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedOptFeatureID">' +
+                id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                '' + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                '' + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                '' + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                '' + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
+            optimizationFeatureList.push(id);
+        }
+    }
+});
+
 var element = document.getElementById('feature-info');
 
 var infoOverlay = new ol.Overlay({
     element: document.getElementById('feature-info'),
+    positioning: 'bottom-center',
+    stopEvent: false
+});
+
+var element2 = document.getElementById('opt-feature-info');
+
+var infoOverlay2 = new ol.Overlay({
+    element: document.getElementById('opt-feature-info'),
     positioning: 'bottom-center',
     stopEvent: false
 });
@@ -15166,6 +15342,19 @@ selectPointerMove.on('select', function(event) {
         infoOverlay.setPosition(offsetCoordinate);
     } else {
         $(element).hide();
+    }
+});
+selectPointerMove2.on('select', function(event) {
+    hoveredFeature = event.selected[0];
+    if (hoveredFeature) {
+        var coordinate = ol.extent.getCenter(hoveredFeature.getGeometry().getExtent());
+        var offsetCoordinate = [coordinate[0], coordinate[1] + 500];
+        infoOverlay2.setPosition(offsetCoordinate);
+        $(element2).html("FeatureID: " + hoveredFeature.getProperties().Name);
+        $(element2).show();
+        infoOverlay2.setPosition(offsetCoordinate);
+    } else {
+        $(element2).hide();
     }
 });
 
@@ -15233,11 +15422,84 @@ var evaluationmap = new ol.Map({
     })
 });
 
-
-
 evaluationmap.addOverlay(infoOverlay);
 evaluationmap.addInteraction(selectSingleClick);
 evaluationmap.addInteraction(selectPointerMove);
+
+var source2 = new ol.source.Vector({ wrapX: false });
+
+var vector2 = new ol.layer.Vector({
+    source: source2
+});
+
+var draw2 = new ol.interaction.Draw({
+    source: source2,
+    type: /** @type {ol.geom.GeometryType} */ ('Polygon'),
+    freehand: true
+});
+
+
+app.FeatureSelectionModeControl2 = function(opt_options) {
+
+    var options = opt_options || {};
+
+    var singleSelectionBtn = document.createElement('button');
+    singleSelectionBtn.innerHTML = 'S';
+    var multiSelectionBtn = document.createElement('button');
+    multiSelectionBtn.innerHTML = 'M';
+    var mapResetBtn = document.createElement('button');
+    mapResetBtn.innerHTML = 'R';
+
+    singleSelectionBtn.addEventListener('click', function() {
+        optimizationmap.removeInteraction(draw2);
+        optimizationmap.addInteraction(selectSingleClick2);
+    }, false);
+    multiSelectionBtn.addEventListener('click', function() {
+        optimizationmap.removeInteraction(selectSingleClick2);
+        optimizationmap.addInteraction(draw2);
+    }, false);
+    mapResetBtn.addEventListener('click', function() {
+        optimizationmap.getView().setCenter(ol.proj.transform([-81.6555, 43.614], 'EPSG:4326', 'EPSG:3857'));
+        optimizationmap.getView().setZoom(13);
+    }, false);
+
+    var element = document.createElement('div');
+    element.className = 'rotate-north ol-unselectable ol-control';
+    element.appendChild(singleSelectionBtn);
+    element.appendChild(multiSelectionBtn);
+    element.appendChild(mapResetBtn);
+
+    ol.control.Control.call(this, {
+        element: element,
+        target: options.target
+    });
+
+};
+ol.inherits(app.FeatureSelectionModeControl2, ol.control.Control);
+
+var optimizationmap = new ol.Map({
+    controls: ol.control.defaults({
+        attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+            collapsible: false
+        })
+    }).extend([
+        new app.FeatureSelectionModeControl2()
+    ]),
+    layers: [
+        new ol.layer.Tile({
+            source: new ol.source.OSM()
+        }), vector2, fieldJsonp2,
+    ],
+    target: 'optimizationmap',
+    view: new ol.View({
+        center: ol.proj.transform([-81.6555, 43.614], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 13,
+    })
+});
+
+optimizationmap.addOverlay(infoOverlay2);
+optimizationmap.addInteraction(selectSingleClick2);
+optimizationmap.addInteraction(selectPointerMove2);
 
 var fieldBMPAssignment = [];
 var subbasinBMPAssignment = [];
@@ -15292,17 +15554,38 @@ source.on('addfeature', function(evt) {
     source.clear();
 });
 
-var optimizationmap = new ol.Map({
-    layers: [
-        new ol.layer.Tile({
-            source: new ol.source.OSM()
-        })
-    ],
-    target: 'optimizationmap',
-    view: new ol.View({
-        center: [0, 0],
-        zoom: 2
-    })
+source2.on('addfeature', function(evt) {
+    var feature = evt.feature;
+    var coords = feature.getGeometry().getCoordinates();
+    console.log(coords);
+    var a = optimizationmap.getLayers().getArray()[2];
+    a.getSource().forEachFeatureIntersectingExtent(feature.getGeometry().getExtent(), function(feature) {
+        if (feature.getProperties().Name < 600) {
+            var exist = false;
+            console.log("hi");
+            console.log(feature.getProperties().Name);
+            feature.setStyle(selectedStyle);
+            var id = feature.getProperties().Name;
+            for (j = 0; j < optimizationFeatureList.length; j++) {
+                if (optimizationFeatureList[j] == id) {
+                    exist = true;
+                }
+            }
+            if (exist === false) {
+                optimizationFeatureList.push(id);
+                $('#optmizationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedOptFeatureID">' +
+                    id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    " " + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    " " + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    " " + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    ' ' + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
+            }
+
+        }
+
+    });
+    source2.clear();
+    console.log(optimizationFeatureList.length);
 });
 
 document.getElementById("ct").addEventListener('click', function(event) {
@@ -15428,6 +15711,13 @@ $(document).on('show-loading-page', function() {
             setTimeout(fade, 10000);
         });
     }, 10000);
+});
+
+$(document).on('show-loading-page2', function() {
+
+    $("#loading-page2").css("visibility", "visible");
+    var fadeoutBox = $("#box7");
+
 });
 
 var bmpAssignmentArray = [];
@@ -16377,5 +16667,499 @@ function drawFeatureChart(selectedFeature) {
         }
     });
 }
+
+var optimizationConfig = new Object();
+
+document.getElementById("getoptimizationrange").addEventListener("click", function(event) {
+    optimizationConfig.selectedLayer = "field";
+    // if ($('#optAll').prop("disabled") === true) {
+    //     optimizationConfig.selectedFeatureIDs = [];
+    // }
+
+    optimizationConfig.selectedFeatureIDs = optimizationFeatureList;
+    if (document.getElementById("optFlow").disabled === true) {
+        optimizationConfig.selectedType = "Flow";
+    }
+    if (document.getElementById("optSediment").disabled === true) {
+        optimizationConfig.selectedType = "Sediment";
+    }
+    if (document.getElementById("optTn").disabled === true) {
+        optimizationConfig.selectedType = "Total N";
+    }
+    if (document.getElementById("optTp").disabled === true) {
+        optimizationConfig.selectedType = "Total P";
+    }
+
+    // optimizationConfig.selectedType = "Sediment";
+    // console.log(optimizationConfig.selectedType);
+
+    if (document.getElementById("envMode").disabled === true) {
+        optimizationConfig.optimizationMode = "Environmental";
+    }
+    if (document.getElementById("ecoMode").disabled === true) {
+        optimizationConfig.optimizationMode = "Budget";
+    }
+    var jsonArray = JSON.stringify(optimizationConfig);
+    $.ajax({
+        url: '/getlowerupperlimites',
+        type: "post",
+        contentType: 'application/json; charset=utf-8',
+        data: jsonArray,
+        dataType: 'json',
+        success: function(r) {
+            // console.log(r.lowerLimit);
+            // console.log(r.lowerLimit + r.upperLimit);
+            console.log(r.LowerLimit);
+            console.log(r.UpperLimit);
+            optimizationConfig.lowerLimit = r.LowerLimit;
+            optimizationConfig.upperLimit = r.UpperLimit;
+            $('#optRange').attr('placeholder', "Between:" + r.UpperLimit + " to " + r.LowerLimit);
+
+            $("#runoptimization").attr('disabled', false);
+            $("#getoptimizationrange").attr('disabled', true);
+        },
+    });
+});
+
+var optimizationLayer;
+
+$("#runoptimization").click(function(event) {
+    /* Act on the event */
+    // optimizationConfig.upperLimit = document.getElementById();
+
+    $(document).trigger('show-loading-page2');
+    optimizationConfig.lowerLimit = $("#optRange").val();
+
+    $("#runoptimization").html('Calculating ...');
+    var jsonArray = JSON.stringify(optimizationConfig);
+    $.ajax({
+        url: '/runoptimizationmodel',
+        type: "post",
+        contentType: 'application/json; charset=utf-8',
+        data: jsonArray,
+        dataType: 'json',
+        success: function(r) {
+            // console.log(r.lowerLimit);
+            // console.log(r.lowerLimit + r.upperLimit);
+            console.log(r[0].IterationNum);
+            console.log(r[0].Water);
+            console.log(r[0].NetReturn);
+            console.log("optimization done");
+            $("#runoptimization").attr('disabled', true);
+
+            $("#runoptimization").html('Start Optimization');
+            $("#getoptimizationrange").attr('disabled', false);
+            optimizationmap.removeInteraction(selectPointerMove2);
+            selectPointerMove2 = new ol.interaction.Select({
+                // layers: [fieldJsonp2],
+                condition: ol.events.condition.pointerMove,
+                filter: function(feature, layer) {
+                    for (var i = 0; i < optimizationFeatureList.length; i++) {
+                        if (optimizationFeatureList[i] == feature.getProperties().name) {
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+            });
+            selectPointerMove2.on('select', function(event) {
+                var hoveredOptimizationResultFeature = event.selected[0];
+                var num;
+
+                if (hoveredOptimizationResultFeature) {
+                    var coordinate = ol.extent.getCenter(hoveredOptimizationResultFeature.getGeometry().getExtent());
+                    var offsetCoordinate = [coordinate[0], coordinate[1] + 500];
+                    if (document.getElementById("getoptimizationrange").disabled === true) {
+                        infoOverlay2.setPosition(offsetCoordinate);
+                        $(element2).html("FeatureID: " + hoveredOptimizationResultFeature.getProperties().Name);
+                        $(element2).show();
+                    }
+                    if (document.getElementById("runoptimization").disabled === true) {
+
+                        infoOverlay2.setPosition(offsetCoordinate);
+                        if ($('#optFlow').prop("disabled") === true) {
+                            num = hoveredOptimizationResultFeature.getProperties().flow;
+                            num = parseFloat(Math.round(num * 100) / 100).toFixed(2);
+                            $(element2).html("FeatureID: " + hoveredOptimizationResultFeature.getProperties().name + "<br />" + "Flow " + num + " m^3/year");
+                        }
+                        if ($('#optSediment').prop("disabled") === true) {
+                            num = hoveredOptimizationResultFeature.getProperties().sediment;
+                            num = parseFloat(Math.round(num * 100) / 100).toFixed(2);
+                            $(element2).html("FeatureID: " + hoveredOptimizationResultFeature.getProperties().name + "<br />" + "Sediment " + num + " ton/ha/year");
+                        }
+                        if ($('#optTn').prop("disabled") === true) {
+                            num = hoveredOptimizationResultFeature.getProperties().tn;
+                            num = parseFloat(Math.round(num * 100) / 100).toFixed(2);
+                            $(element2).html("FeatureID: " + hoveredOptimizationResultFeature.getProperties().name + "<br />" + "Total N " + num + " kg/ha/year");
+                        }
+                        if ($('#optTp').prop("disabled") === true) {
+                            num = hoveredOptimizationResultFeature.getProperties().tp;
+                            num = parseFloat(Math.round(num * 100) / 100).toFixed(2);
+                            $(element2).html("FeatureID: " + hoveredOptimizationResultFeature.getProperties().name + "<br />" + "Total P " + num + " kg/ha/year");
+                        }
+
+                        $(element2).show();
+                    }
+                } else {
+                    $(element2).hide();
+                }
+            });
+            optimizationmap.addInteraction(selectPointerMove2);
+            drawOptimizationChart(r);
+            optimizationLayer = renderOptimizationMap("01", optimizationConfig.selectedType);
+            drawOptimizationTable(optimizationLayer);
+            $("#loading-page2").css("visibility", "hidden");
+
+        },
+    });
+});
+
+function drawOptimizationChart(result) {
+
+    var chartData = new Object();
+    var chartBudgetData = new Object();
+
+    chartData.name = optimizationConfig.selectedType;
+    chartBudgetData.name = "Cost";
+
+    var resultArray = [];
+    var budgetResultArray = [];
+    var yAxisValue = "";
+    if (optimizationConfig.selectedType === "Flow") {
+        for (i = 0; i < result.length; i++) {
+            resultArray.push(result[i].Water.toFixed(2));
+            budgetResultArray.push(result[i].NetReturn);
+        }
+        yAxisValue = "Water mm";
+        unit = "mm";
+    }
+    if (optimizationConfig.selectedType === "Sediment") {
+        for (i = 0; i < result.length; i++) {
+            resultArray.push(result[i].Sediment.toFixed(2));
+            budgetResultArray.push(result[i].NetReturn);
+
+        }
+        yAxisValue = "Sediment ton";
+        unit = "ton";
+
+    }
+    if (optimizationConfig.selectedType === "Total P") {
+        for (i = 0; i < result.length; i++) {
+            resultArray.push(result[i].TP.toFixed(2));
+            budgetResultArray.push(result[i].NetReturn);
+
+        }
+        yAxisValue = "Total P kg";
+        unit = "kg";
+    }
+    if (optimizationConfig.selectedType === "Total N") {
+        for (i = 0; i < result.length; i++) {
+            resultArray.push(result[i].TN.toFixed(2));
+            budgetResultArray.push(result[i].NetReturn);
+
+        }
+        yAxisValue = "Total N kg";
+        unit = "kg";
+    }
+
+    chartData.data = resultArray;
+    chartBudgetData.data = budgetResultArray;
+
+    Highcharts.chart('optimizationchart', {
+        title: {
+            text: '',
+        },
+        xAxis: {
+            categories: chartData.data
+        },
+        yAxis: [{ // Primary yAxis
+
+            title: {
+                text: 'BMP Cost (dollar)',
+            }
+        }],
+        credits: {
+            enabled: false
+        },
+
+        plotOptions: {
+            series: {
+
+                allowPointSelect: true
+            }
+        },
+        series: [{
+            name: 'BMP Cost',
+            data: chartBudgetData.data,
+            showInLegend: false,
+            point: {
+                events: {
+                    select: function(event) {
+
+                        // console.log(this.series.data[1].selected);
+                        // console.log(this == this.series.data[1]);
+                        var optimizationLayer;
+
+                        if (this == this.series.data[0]) {
+                            optimizationLayer = renderOptimizationMap("01", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+
+                        if (this == this.series.data[1]) {
+                            optimizationLayer = renderOptimizationMap("02", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[2]) {
+                            optimizationLayer = renderOptimizationMap("03", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[3]) {
+                            optimizationLayer = renderOptimizationMap("04", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[4]) {
+                            optimizationLayer = renderOptimizationMap("05", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[5]) {
+                            optimizationLayer = renderOptimizationMap("06", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[6]) {
+                            optimizationLayer = renderOptimizationMap("07", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[7]) {
+                            optimizationLayer = renderOptimizationMap("08", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[8]) {
+                            optimizationLayer = renderOptimizationMap("09", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        if (this == this.series.data[9]) {
+                            optimizationLayer = renderOptimizationMap("10", optimizationConfig.selectedType);
+                            drawOptimizationTable(optimizationLayer);
+                        }
+                        // if (optimizationChart.series[0].data[1] === this) {
+                        //     optimizationLayer = renderOptimizationMap("02", optimizationConfig.selectedType);
+                        //     drawOptimizationTable(optimizationLayer);
+                        // }                        
+                    },
+                    // unselect: function(event) {
+                    //     var p = this.series.chart.getSelectedPoints();
+                    //     if(p.length > 0 && p[0].x == this.x) {
+                    //         $('#label').text('point unselected');
+                    //     }
+                    // }
+                }
+            }
+        }]
+    });
+
+}
+
+var fieldOptimizationResult = function(iterationNum, selectedOptimizationType) {
+
+    if (selectedOptimizationType === "Flow") {
+        $("#optFlow").attr("disabled", true);
+        $('#optFlow').siblings().attr("disabled", false);
+
+        return new ol.layer.Vector({
+            source: new ol.source.Vector({
+                url: '/static/administration/assets/layers/optfield20' + iterationNum + '.json',
+                format: new ol.format.GeoJSON()
+            }),
+            style: optStyleFlowFunction
+        });
+    }
+    if (selectedOptimizationType === "Sediment") {
+        $("#optSediment").attr("disabled", true);
+        $('#optSediment').siblings().attr("disabled", false);
+
+        return new ol.layer.Vector({
+            source: new ol.source.Vector({
+                url: '/static/administration/assets/layers/optfield20' + iterationNum + '.json',
+                format: new ol.format.GeoJSON()
+            }),
+            style: optStyleSedimentFunction
+        });
+    }
+    if (selectedOptimizationType === "Total P") {
+        $("#optTp").attr("disabled", true);
+        $('#optTp').siblings().attr("disabled", false);
+
+        return new ol.layer.Vector({
+            source: new ol.source.Vector({
+                url: '/static/administration/assets/layers/optfield20' + iterationNum + '.json',
+                format: new ol.format.GeoJSON()
+            }),
+            style: optStyleTpFunction
+        });
+    }
+    if (selectedOptimizationType === "Total N") {
+        $("#optTn").attr("disabled", true);
+        $('#optTn').siblings().attr("disabled", false);
+
+        return new ol.layer.Vector({
+            source: new ol.source.Vector({
+                url: '/static/administration/assets/layers/optfield20' + iterationNum + '.json',
+                format: new ol.format.GeoJSON()
+            }),
+            style: optStyleTnFunction
+        });
+    }
+};
+
+function renderOptimizationMap(iterationNum, selectedOptimizationType) {
+    var optimizationFieldLayer = fieldOptimizationResult(iterationNum, selectedOptimizationType);
+    optimizationmap.removeLayer(optimizationmap.getLayers().getArray()[2]);
+    optimizationmap.addLayer(optimizationFieldLayer);
+    return optimizationFieldLayer;
+}
+
+function drawOptimizationTable(optimizationLayer) {
+
+    var optTableHeader = '<tr><th style="padding-top:11px;">ID</th><th style="padding-top:11px;">CC</th><th style="padding-top:11px;">CT</th><th style="padding-top:11px;">NM</th><th style="padding-top:11px;">WasCobs</th></tr>';
+    var optTableString = '<table class="table table-condensed table-hover" id="optmizationTable">' + optTableHeader;
+    var optimizationFeatures;
+    setTimeout(function() {
+        optimizationFeatures = optimizationLayer.getSource().getFeatures();
+        for (var i = 0; i < optimizationFeatures.length; i++) {
+            if (optimizationFeatures[i].getProperties().OptBMPs.length !== 0) {
+                optTableString += '<tr><td style="padding-top:11px;">' + optimizationFeatures[i].getProperties().name + '</td><td style="padding-top:11px;">' + hasCrp(optimizationFeatures[i].getProperties().OptBMPs) + ' </td><td style="padding-top:11px;">' + hasCov(optimizationFeatures[i].getProperties().OptBMPs) + '</td><td style="padding-top:11px;">' + hasNMAN(optimizationFeatures[i].getProperties().OptBMPs) + '</td><td style="padding-top:11px;">' + hasWAS(optimizationFeatures[i].getProperties().OptBMPs) + '</td></tr>';
+            }
+        }
+        optTableString += "</table>";
+
+        document.getElementById("optmizationTable").innerHTML = optTableString;
+    }, 1000);
+
+}
+
+function hasCov(s) {
+    var str = s;
+    var n = str.search(/All/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    n = str.search(/Til/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    return "N";
+}
+
+function hasNMAN(s) {
+    var str = s;
+
+    var n = str.search(/All/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    n = str.search(/NMAN/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    return "N";
+
+}
+
+function hasCrp(s) {
+    var str = s;
+    var n = str.search(/All/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    n = str.search(/Crp/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    return "N";
+
+}
+
+function hasWAS(s) {
+    var str = s;
+
+    var n = str.search(/All/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    n = str.search(/Was/i);
+    if (n !== -1) {
+        return "Y";
+    }
+    return "N";
+}
+
+
+
+$("#envMode").click(function(event) {
+    $("#envMode").attr("disabled", true);
+    $("#envMode").siblings().attr("disabled", false);
+
+});
+$("#ecoMode").click(function(event) {
+    $("#ecoMode").attr("disabled", true);
+    $("#ecoMode").siblings().attr("disabled", false);
+});
+
+$("#optFlow").click(function(event) {
+    selectSingleClick2.getFeatures().clear();
+    var a = optimizationmap.getLayers().getArray()[2];
+    a.setStyle(optStyleFlowFunction); // var b = evaluationmap.getLayers().getArray()[1];
+    // b.setStyle(outletSelectStyle);
+    // drawOutletChart("flow");
+    $("#optFlow").attr("disabled", true);
+    $("#optFlow").siblings().attr("disabled", false);
+
+});
+$("#optSediment").click(function(event) {
+    /* Act on the event */
+    selectSingleClick2.getFeatures().clear();
+    var a = optimizationmap.getLayers().getArray()[2];
+    a.setStyle(optStyleSedimentFunction); // var b = evaluationmap.getLayers().getArray()[1];
+    // b.setStyle(outletSelectStyle);
+    // drawOutletChart("sediment");
+    $("#optSediment").attr("disabled", true);
+    $("#optSediment").siblings().attr("disabled", false);
+});
+$("#optTn").click(function(event) {
+    /* Act on the event */
+    selectSingleClick2.getFeatures().clear();
+    var a = optimizationmap.getLayers().getArray()[2];
+    a.setStyle(optStyleTnFunction); // var b = evaluationmap.getLayers().getArray()[1];
+    // b.setStyle(outletSelectStyle);
+    // drawOutletChart("tn");
+    $("#optTn").attr("disabled", true);
+    $("#optTn").siblings().attr("disabled", false);
+});
+$("#optTp").click(function(event) {
+    /* Act on the event */
+    selectSingleClick2.getFeatures().clear();
+    var a = optimizationmap.getLayers().getArray()[2];
+    a.setStyle(optStyleTpFunction);
+    // var b = evaluationmap.getLayers().getArray()[1];
+    // b.setStyle(outletSelectStyle);
+    // drawOutletChart("tp");
+    $("#optTp").attr("disabled", true);
+    $("#optTp").siblings().attr("disabled", false);
+});
+
+$("#optReset").click(function(event) {
+    /* Act on the event */
+    optimizationFeatureList = [];
+    var a = optimizationmap.getLayers().getArray()[2];
+    a.setStyle(fieldStyle);
+    document.getElementById("optmizationTable").innerHTML = `<tr>
+                                <th style="padding-top:11px;">ID</th>
+                                <th style="padding-top:11px;">CC</th>
+                                <th style="padding-top:11px;">CT</th>
+                                <th style="padding-top:11px;">NM</th>
+                                <th style="padding-top:11px;">WasCobs</th>
+                                <th style="padding-top:11px;">Del</th>
+                            </tr>`;
+});
 
 },{"bootstrap":1,"jquery":14,"openlayers":15}]},{},[16]);

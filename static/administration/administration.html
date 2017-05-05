@@ -265,24 +265,25 @@
         <div class="row">
             <div class="col-sm-12" class="mapbtn" id="optimizationmapbtn">
                 <div class="row">
-                    <div class="col-sm-2">
-                        <button class="button button-highlight  button-rounded button-small  optimizationtype" style="font-size: 20px;">Environment</button>
-                        <button class="button button-highlight button-rounded button-small  optimizationtype" disabled>Economic</button>
+                    <div class="col-sm-3">
+                        <button class="button button-highlight  button-rounded button-small  optimizationtype" id="envMode" disabled>Environment</button>
+                        <button class="button button-highlight button-rounded button-small  optimizationtype" id="ecoMode">Economic</button>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-5">
                         <div class="bmpoptimizationbtns" style="float:right">
-                            <button class="button button-action button-rounded button-small resultbtn">Flow</button>
-                            <button class="button button-action  button-rounded button-small resultbtn">Sediment</button>
-                            <button class="button button-action  button-rounded button-small resultbtn">Total N</button>
-                            <button class="button button-action  button-rounded button-small resultbtn">Total P</button>
-                            <button class="button button-primary  button-rounded button-small resultbtn">Cost</button>
-                            <button class="button button-primary  button-rounded button-small resultbtn">Revenue</button>
-                            <button class="button button-primary  button-rounded button-small resultbtn">Net Return</button>
+                            <button class="button button-action button-rounded button-small resultbtn" id="optFlow">Flow</button>
+                            <button class="button button-action  button-rounded button-small resultbtn" id="optSediment">Sediment</button>
+                            <button class="button button-action  button-rounded button-small resultbtn" id="optTn">Total N</button>
+                            <button class="button button-action  button-rounded button-small resultbtn" id="optTp">Total P</button>
+                            <button class="button button-caution  button-rounded button-small resultbtn" id="optReset">Reset</button>
+
                         </div>
                     </div>
                     <div class="col-sm-4">
-                        <input class="searchinput" type="text" placeholder="Search">
-                        <button class="button button-caution button-rounded button-small" id="runoptimization" style="float:right">Start Optimization</button>
+                        <input class="searchinput" type="text" placeholder="Range" id="optRange">
+                        <button class="button button-caution button-rounded button-small" id="runoptimization" style="float:right; margin-left: 10px" disabled="true">Start Optimization</button>    
+                        <button class="button button-caution button-rounded button-small" id="getoptimizationrange" style="float:right">Get Range</button>                        
+
                     </div>
                 </div>
             </div>
@@ -294,6 +295,10 @@
                     </div>
                     <div class="col-sm-12 chart" id="optimizationchart">
                     </div>
+                    <div id="opt-feature-info">
+                    </div>
+                    <div id="opt-result-feature-info">
+                    </div>                    
                 </div>
             </div>
             <div class="col-sm-4">
@@ -306,20 +311,7 @@
                                 <th style="padding-top:11px;">CT</th>
                                 <th style="padding-top:11px;">NM</th>
                                 <th style="padding-top:11px;">WasCobs</th>
-                            </tr>
-                            <tr>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
-                            </tr>
-                            <tr>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
-                                <td style="padding-top:11px;"></td>
+                                <th style="padding-top:11px;">Del</th>
                             </tr>
                         </table>
                     </div>
@@ -380,6 +372,26 @@
             </div>
         </div>
     </div>
+    <div id="loading-page2">
+        <div id="loading-info2">
+            <div class="row">
+                <div class="col-sm-8 col-sm-push-2">
+                    <div class="row" style="margin-top: 150px;">
+                        <div class="col-sm-4 text-right">
+                            <img src="/static/administration/assets/images/loading.gif" alt="">
+                        </div>
+                        <div class="col-sm-7 col-sm-push-1">
+                            <div id="progress-info">
+                                <div id="box7">
+                                    <p><span> Executing optimization ... </span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
 </body>
 <script>
 </script>

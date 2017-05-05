@@ -87,6 +87,9 @@ func main() {
 	router.HandleFunc("/chart", HandleChart)
 	router.HandleFunc("/drawecooutletchart", HandleEcoOutletChart)
 
+	router.HandleFunc("/getlowerupperlimites", HandleOptimizationLimites)
+	router.HandleFunc("/runoptimizationmodel", HandleOptimizationRun)
+
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 	http.ListenAndServe(":8080", router)
 }

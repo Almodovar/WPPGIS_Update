@@ -1544,7 +1544,7 @@ type OptChartData struct {
 	TN           float64
 }
 
-func HandleOptimizationLimites(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleOptimizationLimites(w http.ResponseWriter, r *http.Request) {
 	var d = new(OptimizationConfigInfo)
 
 	err := json.NewDecoder(r.Body).Decode(&d)
@@ -1552,10 +1552,10 @@ func HandleOptimizationLimites(w http.ResponseWriter, r *http.Request, _ httprou
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	// fmt.Println(d.SelectedLayer)
-	// fmt.Println(d.OptimizationMode)
-	// fmt.Println(d.SelectedFeatureIDs)
-	// fmt.Println(d.SelectedType)
+	fmt.Println(d.SelectedLayer)
+	fmt.Println(d.OptimizationMode)
+	fmt.Println(d.SelectedFeatureIDs)
+	fmt.Println(d.SelectedType)
 
 	var featureIDString = ""
 	for i := 0; i < len(d.SelectedFeatureIDs); i++ {
@@ -1578,9 +1578,9 @@ func HandleOptimizationLimites(w http.ResponseWriter, r *http.Request, _ httprou
 	optimizationConfig.EndYear = "2011"
 	optimizationConfig.IsIncrementMode = "true"
 	optimizationConfig.IterationNumber = "10"
-	optimizationConfig.OutPath = "C:\\xxKun_Learn\\Go\\Go\\src\\wppgis\\assets\\WEBsOptimization\\OptOut.db3"
+	optimizationConfig.OutPath = "C:\\xxKun_Learn\\Go\\Go\\src\\WPPGIS_Update\\static\\administration\\assets\\WEBsOptimization\\OptOut.db3"
 	optimizationConfig.IsUpDown = "true"
-	optimizationConfig.OutUpDownPath = "C:\\xxKun_Learn\\Go\\Go\\src\\wppgis\\assets\\WEBsOptimization\\UpLow.txt"
+	optimizationConfig.OutUpDownPath = "C:\\xxKun_Learn\\Go\\Go\\src\\WPPGIS_Update\\static\\administration\\assets\\WEBsOptimization\\UpLow.txt"
 
 	optimizationConfigJson, err := json.Marshal(optimizationConfig)
 	check(err)
@@ -1630,7 +1630,7 @@ func HandleOptimizationLimites(w http.ResponseWriter, r *http.Request, _ httprou
 	w.Write(a)
 }
 
-func HandleOptimizationRun(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleOptimizationRun(w http.ResponseWriter, r *http.Request) {
 	var d = new(OptimizationConfigInfo)
 
 	err := json.NewDecoder(r.Body).Decode(&d)
@@ -1658,9 +1658,9 @@ func HandleOptimizationRun(w http.ResponseWriter, r *http.Request, _ httprouter.
 	optimizationConfig.EndYear = "2011"
 	optimizationConfig.IsIncrementMode = "true"
 	optimizationConfig.IterationNumber = "10"
-	optimizationConfig.OutPath = "C:\\xxKun_Learn\\Go\\Go\\src\\wppgis\\assets\\WEBsOptimization\\OptOut.db3"
+	optimizationConfig.OutPath = "C:\\xxKun_Learn\\Go\\Go\\src\\WPPGIS_Update\\static\\administration\\assets\\WEBsOptimization\\OptOut.db3"
 	optimizationConfig.IsUpDown = "false"
-	optimizationConfig.OutUpDownPath = "C:\\xxKun_Learn\\Go\\Go\\src\\wppgis\\assets\\WEBsOptimization\\UpLow.txt"
+	optimizationConfig.OutUpDownPath = "C:\\xxKun_Learn\\Go\\Go\\src\\WPPGIS_Update\\static\\administration\\assets\\WEBsOptimization\\UpLow.txt"
 
 	optimizationConfigJson, err := json.Marshal(optimizationConfig)
 	check(err)
@@ -1670,8 +1670,8 @@ func HandleOptimizationRun(w http.ResponseWriter, r *http.Request, _ httprouter.
 	done := make(chan bool, 1)
 	go func() {
 
-		cmd := exec.Command("java", "-jar", "C:/xxKun_Learn/Go/Go/src/WPPGIS_Update./static/administration/assets/WEBsOptimization/WEBsInterface_WB.jar")
-		cmd.Dir = "C:/xxKun_Learn/Go/Go/src/WPPGIS_Update./static/administration/assets/WEBsOptimization"
+		cmd := exec.Command("java", "-jar", "C:/xxKun_Learn/Go/Go/src/WPPGIS_Update/static/administration/assets/WEBsOptimization/WEBsInterface_WB.jar")
+		cmd.Dir = "C:/xxKun_Learn/Go/Go/src/WPPGIS_Update/static/administration/assets/WEBsOptimization"
 		cmd.Run()
 		// cmd := "java"
 		// args := []string{"-jar", "./assets/WEBsOptimization/WEBsInterface_WB.jar"}
@@ -1814,6 +1814,8 @@ func GenerateOptResultJsonFile(sin string, sout string, array map[int]*Result, a
 		fmt.Println("fail 2")
 	}
 
+	Quartile(array)
+
 	for id := range array {
 		for i := 0; i < len(featureCollection.Features); i++ {
 			if strconv.Itoa(id) == featureCollection.Features[i].Properties.Name {
@@ -1822,6 +1824,10 @@ func GenerateOptResultJsonFile(sin string, sout string, array map[int]*Result, a
 				featureCollection.Features[i].Properties.Tp = array[id].Tp
 				featureCollection.Features[i].Properties.Tn = array[id].Tn
 				featureCollection.Features[i].Properties.OptBMPs = assignedBMPs[id]
+				featureCollection.Features[i].Properties.FlowLevel = SelectLevel(array[id].Water, FlowQuartile)
+				featureCollection.Features[i].Properties.SedimentLevel = SelectLevel(array[id].Sediment, SedimentQuartile)
+				featureCollection.Features[i].Properties.TpLevel = SelectLevel(array[id].Tp, TpQuartile)
+				featureCollection.Features[i].Properties.TnLevel = SelectLevel(array[id].Tn, TnQuartile)
 			}
 		}
 	}

@@ -100,6 +100,12 @@ div.tab .tabbtn.active {
     margin-top: 50px;
 }
 
+#network,
+#socialnetwork {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
 
 /*Style map buttons*/
 
@@ -226,7 +232,6 @@ td {
     padding-bottom: 5px;
     padding-left: 10px;
     font-size: 14px;
-
 }
 
 #result-feature-info {
@@ -236,7 +241,6 @@ td {
     padding-bottom: 5px;
     padding-left: 10px;
     font-size: 14px;
-
 }
 
 #opt-feature-info {
@@ -246,7 +250,6 @@ td {
     padding-bottom: 5px;
     padding-left: 10px;
     font-size: 14px;
-
 }
 
 #opt-result-feature-info {
@@ -256,7 +259,6 @@ td {
     padding-bottom: 5px;
     padding-left: 10px;
     font-size: 14px;
-
 }
 
 #loading-page {

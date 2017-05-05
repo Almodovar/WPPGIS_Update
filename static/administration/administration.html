@@ -33,7 +33,7 @@
     <div id="dashboard" class="tabcontent">
         <div class="row">
             <div class="col-sm-2 col-sm-offset-1">
-                Account
+                <p style="font-size: 20px;font-weight: bold;">Account</p>
                 <hr>
                 <div class="row">
                     <div class="col-sm-6 text-center">
@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div class="col-sm-4 col-sm-offset-1">
-                Summary
+                <p style="font-size: 20px;font-weight: bold;">Summary</p>
                 <hr>
                 <div class="row">
                     <div class="col-sm-4 text-center">
@@ -75,7 +75,7 @@
                 </div>
             </div>
             <div class="col-sm-2 col-sm-offset-1">
-                Progress
+                <p style="font-size: 20px;font-weight: bold;">Progress</p>
                 <hr>
                 <div class="row">
                     <div class="col-sm-6 text-center">
@@ -101,41 +101,43 @@
             <div class="col-sm-2 col-sm-offset-1" style="background:green">
             </div>
         </div>
-        <div id="loginstat" class="row marginspace">
+        <div id="loginstat" class="row marginspace" style="text-align: center">
+            <p style="font-size: 20px;font-weight: bold;">User Login Status</p>
             <div class="col-sm-10 col-sm-offset-1" id="statchart">
             </div>
         </div>
-        <div id="mangementtable" class="row marginspace">
-            <div id="scenariotable" class="col-sm-4 col-sm-offset-1">
+        <div id="mangementtable" class="row marginspace" style="text-align: center">
+            <p style="font-size: 20px;font-weight: bold;">Management Tables</p>
+            <div id="scenariotable" class="col-sm-4 col-sm-offset-1" style="margin-top:10px">
                 <table class="table table-condensed">
                     <tr>
                         <th>Scenario</th>
                         <th>Owner</th>
-                        <th>Status</th>
+                        <th>Progress</th>
                     </tr>
                     <tr>
+                        <td>BMP_CC_NM</td>
                         <td>1</td>
-                        <td>1</td>
-                        <td>1</td>
+                        <td>Evaluation</td>
                     </tr>
                     <tr>
+                        <td>BMP_CT_NM</td>
                         <td>2</td>
-                        <td>2</td>
-                        <td>2</td>
+                        <td>Development</td>
                     </tr>
                     <tr>
+                        <td>BMP_NM_WC</td>
                         <td>3</td>
-                        <td>3</td>
-                        <td>3</td>
+                        <td>Optimization</td>
                     </tr>
                     <tr>
+                        <td>BMP_NM_WC_CC</td>
                         <td>4</td>
-                        <td>4</td>
-                        <td>4</td>
+                        <td>Complete</td>
                     </tr>
                 </table>
             </div>
-            <div id="commenttable" class="col-sm-5 col-sm-offset-1">
+            <div id="commenttable" class="col-sm-5 col-sm-offset-1" style="margin-top:10px">
                 <table class="table table-condensed">
                     <tr>
                         <th>Title</th>
@@ -144,36 +146,37 @@
                         <th>Status</th>
                     </tr>
                     <tr>
-                        <td>1</td>
+                        <td>Implementation cost</td>
                         <td>2</td>
-                        <td>3</td>
-                        <td>4</td>
+                        <td>BMP_NM_WC</td>
+                        <td>Open</td>
                     </tr>
                     <tr>
-                        <td>1</td>
+                        <td>Financial support</td>
                         <td>2</td>
-                        <td>3</td>
-                        <td>4</td>
+                        <td>BMP_NM_CC</td>
+                        <td>Closed</td>
                     </tr>
                     <tr>
-                        <td>1</td>
+                        <td>Technical assistant</td>
                         <td>2</td>
-                        <td>3</td>
-                        <td>4</td>
+                        <td>BMP_NM_WC</td>
+                        <td>Closed</td>
                     </tr>
                     <tr>
-                        <td>1</td>
+                        <td>Livestock problem</td>
                         <td>2</td>
-                        <td>3</td>
-                        <td>4</td>
+                        <td>BMP_NM_WC_CC</td>
+                        <td>Open</td>
                     </tr>
                 </table>
             </div>
         </div>
+        <div style="text-align: center; padding-top: 20px; margin-top: 40px;" id="networkAnchor">
+            <p style="font-size: 20px;font-weight: bold;">Social Ties</p>
+        </div>
         <div id="network" class="row marginspace">
-            <div class="col-sm-10 col-sm-offset-1" style="position:relative">
-                <div id="socialnetwork" style="width:1100px; height: 500px;">
-                </div>
+            <div id="socialnetwork">
             </div>
         </div>
     </div>
@@ -276,14 +279,12 @@
                             <button class="button button-action  button-rounded button-small resultbtn" id="optTn">Total N</button>
                             <button class="button button-action  button-rounded button-small resultbtn" id="optTp">Total P</button>
                             <button class="button button-caution  button-rounded button-small resultbtn" id="optReset">Reset</button>
-
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <input class="searchinput" type="text" placeholder="Range" id="optRange">
-                        <button class="button button-caution button-rounded button-small" id="runoptimization" style="float:right; margin-left: 10px" disabled="true">Start Optimization</button>    
-                        <button class="button button-caution button-rounded button-small" id="getoptimizationrange" style="float:right">Get Range</button>                        
-
+                        <button class="button button-caution button-rounded button-small" id="runoptimization" style="float:right; margin-left: 10px" disabled="true">Start Optimization</button>
+                        <button class="button button-caution button-rounded button-small" id="getoptimizationrange" style="float:right">Get Range</button>
                     </div>
                 </div>
             </div>
@@ -298,7 +299,7 @@
                     <div id="opt-feature-info">
                     </div>
                     <div id="opt-result-feature-info">
-                    </div>                    
+                    </div>
                 </div>
             </div>
             <div class="col-sm-4">
@@ -391,7 +392,7 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
 </body>
 <script>
 </script>

@@ -12,7 +12,7 @@ document.getElementsByClassName("bmpbtn")[0].disabled = true;
 document.getElementById("runoptimization").disabled = true;
 
 $("#loading-page").css('height', 150);
-$("#loading-info").css('margin-top', ($("#loading-page2").height() - 400) / 2);
+$("#loading-info").css('margin-top', ($("#loading-page").height() - 400) / 2);
 
 $("#loading-page2").css('height', 150);
 $("#loading-info2").css('margin-top', ($("#loading-page2").height() - 400) / 2);
@@ -381,7 +381,6 @@ document.getElementById("bmpconfigreset").addEventListener("click", function() {
     $(".bmpsetupbtns").show("slow");
     document.getElementById("bmpconfigreset").disabled = true;
     document.getElementById('runmodel').disabled = false;
-    evaluationmap.getLayers().getArray()[3].setStyle(fieldStyle);
     document.getElementById("evaluationTable").innerHTML = `<tr>
                                 <th style="padding-top:11px;">ID</th>
                                 <th style="padding-top:11px;">CC</th>
@@ -390,9 +389,44 @@ document.getElementById("bmpconfigreset").addEventListener("click", function() {
                                 <th style="padding-top:11px;">WasCobs</th>
                                 <th style="padding-top:11px;">Del</th>
                             </tr>`;
+
+    evaluationmap.removeLayer(evaluationmap.getLayers().getArray()[4]);
+    evaluationmap.addLayer(fieldJsonp);
+    for (var i = 0; i < fieldArray.length; i++) {
+        fieldArray[i].feature.setStyle(null);
+    }
+    fieldBMPAssignment.length = 0;
+    evaluationmap.removeInteraction(selectSingleClickAfter);
+    evaluationmap.addInteraction(selectSingleClickBefore);
+    evaluationmap.removeInteraction(selectPointerMoveAfter);
+    evaluationmap.addInteraction(selectPointerMoveBefore);
 });
 
 
+$("#search1").on('keyup', function(e) {
+    if (e.keyCode == 13) {
+        // Do something
+        var id = document.getElementById("search1").value;
+        var extent;
+        var features = evaluationmap.getLayers().getArray()[4].getSource().getFeatures();
+        for (var i = 0; i < features.length; i++) {
+            if (features[i].getProperties().Name && features[i].getProperties().Name === id) {
+                extent = features[i].getGeometry().getExtent();
+            }
+            if (features[i].getProperties().name && features[i].getProperties().name === id.toString()) {
+                extent = features[i].getGeometry().getExtent();
+            }
+        }
+        // evaluationmap.getView().fit(extent, evaluationmap.getSize());
+        // evaluationmap.getView().setZoom(16);
+        var center = ol.extent.getCenter(extent);
+        evaluationmap.getView().animate({
+            center: center,
+            duration: 700,
+            zoom: 16,
+        });
+    }
+});
 
 // document.addEventListener("click", function(evt) {
 //     if (hasClass(evt.target, 'optimizationtype') || hasClass(evt.target, 'bmpbtn') || hasClass(evt.target, 'resultbtn') || hasClass(evt.target, 'layertype')) {
@@ -428,22 +462,22 @@ var connections = [{
 }, {
     "source": "theta",
     "target": "Kevin"
-},{
+}, {
     "source": "alpha",
     "target": "John"
-},{
+}, {
     "source": "alpha",
     "target": "gamma"
-},{
+}, {
     "source": "Tom",
     "target": "Kevin"
-},{
+}, {
     "source": "alpha",
     "target": "gamma"
-},{
+}, {
     "source": "alpha",
     "target": "gamma"
-},{
+}, {
     "source": "alpha",
     "target": "eta"
 }, {
@@ -465,6 +499,7 @@ var visualization = d3plus.viz()
 // ==============================================================================================================================
 var fieldArray = [];
 var subbasinArray = [];
+var wascobArray = [];
 
 function Subbasin(id, feature, flow, sediment, tn, tp) {
     this.id = id;
@@ -484,8 +519,14 @@ function Field(id, feature, flow, sediment, tn, tp) {
     this.tp = tp;
 }
 
+function WasCobs(id, feature, field, subbasin) {
+    this.id = id;
+    this.feature = feature;
+    this.field = field;
+    this.subbasin = subbasin;
+}
 // ****************************************************
-// Subbasin layer loaded from geoserver in Jsonp format
+// Layers loaded from geoserver in Jsonp format
 // Be sure to enable the Jsonp function in the web.xml
 // of Geoserver 
 // ****************************************************
@@ -508,7 +549,8 @@ var subbasinJsonp = new ol.layer.Vector({
 });
 
 subbasinJsonp.getSource().on('addfeature', function(event) {
-    subbasinFeatures = subbasinJsonp.getSource().getFeatures();
+    subbasinArray = [];
+    var subbasinFeatures = subbasinJsonp.getSource().getFeatures();
     for (i = 0; i < subbasinFeatures.length; i++) {
         var subbasin = new Subbasin();
         subbasin.id = subbasinFeatures[i].getProperties().Name;
@@ -516,12 +558,6 @@ subbasinJsonp.getSource().on('addfeature', function(event) {
         subbasinArray.push(subbasin);
     }
 });
-
-// ****************************************************
-// Field layer loaded from geoserver in Jsonp format
-// Be sure to enable the Jsonp function in the web.xml
-// of Geoserver     
-// ****************************************************
 
 var fieldStyle = new ol.style.Style({
     fill: new ol.style.Fill({
@@ -540,7 +576,7 @@ var fieldJsonp = new ol.layer.Vector({
     style: fieldStyle
 });
 
-
+var fieldoutput;
 var fieldJsonp2 = new ol.layer.Vector({
     source: new ol.source.Vector({
         url: '/static/administration/assets/layers/field.json',
@@ -550,12 +586,52 @@ var fieldJsonp2 = new ol.layer.Vector({
 });
 
 fieldJsonp.getSource().on('addfeature', function(event) {
-    fieldFeatures = fieldJsonp.getSource().getFeatures();
+    fieldArray = [];
+    var fieldFeatures = fieldJsonp.getSource().getFeatures();
     for (i = 0; i < fieldFeatures.length; i++) {
         var field = new Field();
         field.id = fieldFeatures[i].getProperties().Name;
         field.feature = fieldFeatures[i];
         fieldArray.push(field);
+    }
+});
+
+var wascobStyle = new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: 6,
+        fill: new ol.style.Fill({ color: 'rgba(69,139,225,0.6)' }),
+        stroke: new ol.style.Stroke({ color: 'white', width: 1 })
+    }),
+});
+
+
+var wascobSelectStyle = new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: 6,
+        fill: new ol.style.Fill({ color: 'rgba(34,34,85,0.6)' }),
+        stroke: new ol.style.Stroke({ color: 'yellow', width: 2 })
+    }),
+});
+
+var wascobJsonp = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        url: '/static/administration/assets/layers/wascob.geojson',
+        format: new ol.format.GeoJSON()
+    }),
+    style: wascobStyle,
+    zIndex: 10,
+});
+
+wascobJsonp.getSource().on('addfeature', function(event) {
+    wascobArray = [];
+    var wascobFeatures = wascobJsonp.getSource().getFeatures();
+    for (i = 0; i < wascobFeatures.length; i++) {
+        var wascob = new WasCobs();
+        wascob.id = wascobFeatures[i].getProperties().NAME;
+        wascob.feature = wascobFeatures[i];
+        wascob.field = wascobFeatures[i].getProperties().Field;
+        wascob.subbasin = wascobFeatures[i].getProperties().SUBBASIN;
+        wascobArray.push(wascob);
     }
 });
 
@@ -916,8 +992,8 @@ function optStyleTnFunction(feature, resolution) {
 // through two methods: hover and single click.  
 // ****************************************************
 
-var selectPointerMove = new ol.interaction.Select({
-    layers: [fieldJsonp, outletLayer, subbasinJsonp],
+var selectPointerMoveBefore = new ol.interaction.Select({
+    layers: [fieldJsonp, outletLayer, subbasinJsonp, wascobJsonp],
     condition: ol.events.condition.pointerMove,
     filter: function(feature, layer) {
         if (layer === fieldJsonp) {
@@ -930,16 +1006,28 @@ var selectPointerMove = new ol.interaction.Select({
     },
 });
 
-var selectSingleClick = new ol.interaction.Select({
-    layers: [fieldJsonp, outletLayer, subbasinJsonp],
+var selectSingleClickBefore = new ol.interaction.Select({
     filter: function(feature, layer) {
         if (layer === fieldJsonp) {
-            if (feature.getProperties().Name > 600) {
+            if (document.getElementById("cc").disabled || document.getElementById("ct").disabled || document.getElementById("nm").disabled) {
+                if (feature.getProperties().Name > 600) {
+                    return false;
+                }
+                return true;
+            }
+            if (document.getElementById("wc").disabled) {
                 return false;
             }
-            return true;
+        } else if (layer === wascobJsonp) {
+            if (document.getElementById("cc").disabled || document.getElementById("ct").disabled || document.getElementById("nm").disabled) {
+                return false;
+            }
+            if (document.getElementById("wc").disabled) {
+                return true;
+            }
+        } else {
+            return false;
         }
-        return true;
     },
 });
 
@@ -992,43 +1080,76 @@ var selectedStyle = new ol.style.Style({
     })
 });
 
-selectSingleClick.on('select', function(event) {
+var selectSingleClickAfter;
+selectSingleClickBefore.on('select', function(event) {
     // $(element).hide();
-    selectedFeature = event.selected[0];
+    var selectedFeature = event.selected[0];
     if (selectedFeature) {
-        selectedFeature.setStyle(selectedStyle);
-        var id = selectedFeature.getProperties().Name;
-        if (fieldBMPAssignment[id] === undefined) {
-            fieldBMPAssignment[id] = {
-                cc: 'N',
-                ct: 'N',
-                nm: 'N',
-            };
-        }
-        if (document.getElementsByClassName('bmpbtn')[0].disabled === true) {
-            fieldBMPAssignment[id].ct = 'Y';
-        }
-        if (document.getElementsByClassName('bmpbtn')[1].disabled === true) {
-            fieldBMPAssignment[id].cc = 'Y';
-        }
-        if (document.getElementsByClassName('bmpbtn')[2].disabled === true) {
-            fieldBMPAssignment[id].nm = 'Y';
-        }
-
-        var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
-        for (var i = 0; i < selectedFeatureID.length; i++) {
-            console.log(selectedFeatureID[i].innerText);
-            if (selectedFeatureID[i].innerText == id.toString()) {
-                document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
+        if (document.getElementById("cc").disabled || document.getElementById("ct").disabled || document.getElementById("nm").disabled) {
+            selectedFeature.setStyle(selectedStyle);
+            var id = selectedFeature.getProperties().Name;
+            if (fieldBMPAssignment[id] === undefined) {
+                fieldBMPAssignment[id] = {
+                    cc: 'N',
+                    ct: 'N',
+                    nm: 'N',
+                    wc: 'N',
+                };
             }
-        }
-        $('#evaluationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedFeatureID">' +
-            id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-            fieldBMPAssignment[id].cc + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-            fieldBMPAssignment[id].ct + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-            fieldBMPAssignment[id].nm + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-            'N' + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
+            if (document.getElementsByClassName('bmpbtn')[0].disabled === true) {
+                fieldBMPAssignment[id].ct = 'Y';
+            }
+            if (document.getElementsByClassName('bmpbtn')[1].disabled === true) {
+                fieldBMPAssignment[id].cc = 'Y';
+            }
+            if (document.getElementsByClassName('bmpbtn')[2].disabled === true) {
+                fieldBMPAssignment[id].nm = 'Y';
+            }
 
+            var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
+            for (var i = 0; i < selectedFeatureID.length; i++) {
+                console.log(selectedFeatureID[i].innerText);
+                if (selectedFeatureID[i].innerText === id.toString()) {
+                    document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
+                }
+            }
+            $('#evaluationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedFeatureID">' +
+                id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].cc + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].ct + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].nm + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].wc + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
+
+        }
+        if (document.getElementById("wc").disabled) {
+            selectedFeature.setStyle(wascobSelectStyle);
+            var id = selectedFeature.getProperties().Field;
+            console.log(typeof id);
+            if (fieldBMPAssignment[id] === undefined) {
+                fieldBMPAssignment[id] = {
+                    cc: 'Y',
+                    ct: 'N',
+                    nm: 'N',
+                    wc: 'N',
+                };
+            }
+            fieldBMPAssignment[id].wc = 'Y';
+
+            var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
+            for (var i = 0; i < selectedFeatureID.length; i++) {
+                console.log(typeof selectedFeatureID[i].innerText);
+                console.log(typeof id);
+                if (selectedFeatureID[i].innerText === id.toString()) {
+                    document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
+                }
+            }
+            $('#evaluationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedFeatureID">' +
+                id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].cc + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].ct + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].nm + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                fieldBMPAssignment[id].wc + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
+        }
     }
 });
 
@@ -1076,13 +1197,21 @@ var infoOverlay2 = new ol.Overlay({
     stopEvent: false
 });
 
-selectPointerMove.on('select', function(event) {
+var selectPointerMoveAfter;
+selectPointerMoveBefore.on('select', function(event) {
     hoveredFeature = event.selected[0];
     if (hoveredFeature) {
         var coordinate = ol.extent.getCenter(hoveredFeature.getGeometry().getExtent());
-        var offsetCoordinate = [coordinate[0], coordinate[1] + 500];
+        var offsetCoordinate = [coordinate[0], coordinate[1] + 300];
         infoOverlay.setPosition(offsetCoordinate);
-        $(element).html("FeatureID: " + hoveredFeature.getProperties().Name);
+        if (hoveredFeature.getProperties().Name) {
+            $(element).html("FeatureID: " + hoveredFeature.getProperties().Name);
+
+        }
+        if (hoveredFeature.getProperties().NAME) {
+            $(element).html("WasCobID: " + hoveredFeature.getProperties().NAME);
+
+        }
         $(element).show();
         infoOverlay.setPosition(offsetCoordinate);
     } else {
@@ -1093,7 +1222,7 @@ selectPointerMove2.on('select', function(event) {
     hoveredFeature = event.selected[0];
     if (hoveredFeature) {
         var coordinate = ol.extent.getCenter(hoveredFeature.getGeometry().getExtent());
-        var offsetCoordinate = [coordinate[0], coordinate[1] + 500];
+        var offsetCoordinate = [coordinate[0], coordinate[1] + 300];
         infoOverlay2.setPosition(offsetCoordinate);
         $(element2).html("FeatureID: " + hoveredFeature.getProperties().Name);
         $(element2).show();
@@ -1121,12 +1250,23 @@ app.FeatureSelectionModeControl = function(opt_options) {
     mapResetBtn.innerHTML = 'R';
 
     singleSelectionBtn.addEventListener('click', function() {
-        evaluationmap.removeInteraction(draw);
-        evaluationmap.addInteraction(selectSingleClick);
+        if (document.getElementById("runmodel").disabled === false) {
+            evaluationmap.removeInteraction(draw);
+            evaluationmap.addInteraction(selectSingleClickBefore);
+        } else {
+            evaluationmap.removeInteraction(draw);
+            evaluationmap.addInteraction(selectSingleClickAfter);
+        }
+
     }, false);
     multiSelectionBtn.addEventListener('click', function() {
-        evaluationmap.removeInteraction(selectSingleClick);
-        evaluationmap.addInteraction(draw);
+        if (document.getElementById("runmodel").disabled === false) {
+            evaluationmap.removeInteraction(selectSingleClickBefore);
+            evaluationmap.addInteraction(draw);
+        } else {
+            evaluationmap.removeInteraction(selectSingleClickAfter);
+            evaluationmap.addInteraction(draw);
+        }
     }, false);
     mapResetBtn.addEventListener('click', function() {
         evaluationmap.getView().setCenter(ol.proj.transform([-81.6555, 43.614], 'EPSG:4326', 'EPSG:3857'));
@@ -1158,7 +1298,7 @@ var evaluationmap = new ol.Map({
     layers: [
         new ol.layer.Tile({
             source: new ol.source.OSM()
-        }), outletLayer, vector, fieldJsonp,
+        }), outletLayer, vector, wascobJsonp, fieldJsonp,
     ],
     target: 'evaluationmap',
     view: new ol.View({
@@ -1168,8 +1308,8 @@ var evaluationmap = new ol.Map({
 });
 
 evaluationmap.addOverlay(infoOverlay);
-evaluationmap.addInteraction(selectSingleClick);
-evaluationmap.addInteraction(selectPointerMove);
+evaluationmap.addInteraction(selectSingleClickBefore);
+evaluationmap.addInteraction(selectPointerMoveBefore);
 
 var source2 = new ol.source.Vector({ wrapX: false });
 
@@ -1253,49 +1393,84 @@ source.on('addfeature', function(evt) {
     var feature = evt.feature;
     var coords = feature.getGeometry().getCoordinates();
     console.log(coords);
-    fieldJsonp.getSource().forEachFeatureIntersectingExtent(feature.getGeometry().getExtent(), function(feature) {
-        if (feature.getProperties().Name < 600) {
+    if (document.getElementById("runmodel").disabled === false) {
+        if (document.getElementsByClassName('bmpbtn')[0].disabled || document.getElementsByClassName('bmpbtn')[1].disabled || document.getElementsByClassName('bmpbtn')[2].disabled) {
+            fieldJsonp.getSource().forEachFeatureIntersectingExtent(feature.getGeometry().getExtent(), function(feature) {
+                if (feature.getProperties().Name < 600) {
+                    console.log("hi");
+                    console.log(feature.getProperties().Name);
+                    feature.setStyle(selectedStyle);
+                    var id = feature.getProperties().Name;
 
-            console.log("hi");
-            console.log(feature.getProperties().Name);
-            feature.setStyle(selectedStyle);
-            var id = feature.getProperties().Name;
+                    if (fieldBMPAssignment[id] === undefined) {
 
-            if (fieldBMPAssignment[id] === undefined) {
+                        fieldBMPAssignment[id] = {
+                            cc: 'N',
+                            ct: 'N',
+                            nm: 'N',
+                            wc: 'N',
+                        };
+                    }
 
-                fieldBMPAssignment[id] = {
-                    cc: 'N',
-                    ct: 'N',
-                    nm: 'N',
-                };
-            }
+                    if (document.getElementsByClassName('bmpbtn')[0].disabled === true) {
+                        fieldBMPAssignment[id].ct = 'Y';
+                    }
+                    if (document.getElementsByClassName('bmpbtn')[1].disabled === true) {
+                        fieldBMPAssignment[id].cc = 'Y';
+                    }
+                    if (document.getElementsByClassName('bmpbtn')[2].disabled === true) {
+                        fieldBMPAssignment[id].nm = 'Y';
+                    }
 
-            if (document.getElementsByClassName('bmpbtn')[0].disabled === true) {
-                fieldBMPAssignment[id].ct = 'Y';
-            }
-            if (document.getElementsByClassName('bmpbtn')[1].disabled === true) {
-                fieldBMPAssignment[id].cc = 'Y';
-            }
-            if (document.getElementsByClassName('bmpbtn')[2].disabled === true) {
-                fieldBMPAssignment[id].nm = 'Y';
-            }
-
-            var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
-            for (var i = 0; i < selectedFeatureID.length; i++) {
-                console.log(selectedFeatureID[i].innerText);
-                if (selectedFeatureID[i].innerText == id.toString()) {
-                    document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
+                    var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
+                    for (var i = 0; i < selectedFeatureID.length; i++) {
+                        console.log(selectedFeatureID[i].innerText);
+                        if (selectedFeatureID[i].innerText == id) {
+                            document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
+                        }
+                    }
+                    $('#evaluationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedFeatureID">' +
+                        id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                        fieldBMPAssignment[id].cc + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                        fieldBMPAssignment[id].ct + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                        fieldBMPAssignment[id].nm + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                        fieldBMPAssignment[id].wc + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
                 }
-            }
-            $('#evaluationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedFeatureID">' +
-                id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-                fieldBMPAssignment[id].cc + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-                fieldBMPAssignment[id].ct + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-                fieldBMPAssignment[id].nm + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
-                'N' + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
+            });
         }
+        if (document.getElementsByClassName('bmpbtn')[3].disabled) {
+            wascobJsonp.getSource().forEachFeatureIntersectingExtent(feature.getGeometry().getExtent(), function(feature) {
+                feature.setStyle(wascobSelectStyle);
+                var id = feature.getProperties().Field;
+                if (fieldBMPAssignment[id] === undefined) {
+                    fieldBMPAssignment[id] = {
+                        cc: 'Y',
+                        ct: 'N',
+                        nm: 'N',
+                        wc: 'N',
+                    };
+                }
 
-    });
+                if (document.getElementsByClassName('bmpbtn')[3].disabled === true) {
+                    fieldBMPAssignment[id].wc = 'Y';
+                }
+
+                var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
+                for (var i = 0; i < selectedFeatureID.length; i++) {
+                    console.log(selectedFeatureID[i].innerText);
+                    if (selectedFeatureID[i].innerText == id) {
+                        document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
+                    }
+                }
+                $('#evaluationTable').append('<tr class="table-data rowSelected"><td style="padding-top:11px;" class="selectedFeatureID">' +
+                    id + '</td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    fieldBMPAssignment[id].cc + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    fieldBMPAssignment[id].ct + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    fieldBMPAssignment[id].nm + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
+                    fieldBMPAssignment[id].wc + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
+            });
+        }
+    }
     source.clear();
 });
 
@@ -1334,12 +1509,14 @@ source2.on('addfeature', function(evt) {
 });
 
 document.getElementById("ct").addEventListener('click', function(event) {
-    selectSingleClick.getFeatures().clear();
+    selectSingleClickBefore.getFeatures().clear();
     // alert("hello");
     for (var i = 0; i < fieldArray.length; i++) {
         fieldArray[i].feature.setStyle(null);
     }
-
+    for (var i = 0; i < wascobArray.length; i++) {
+        wascobArray[i].feature.setStyle(null);
+    }
     for (var j in fieldBMPAssignment) {
         console.log(j);
         if (fieldBMPAssignment[j].ct == "Y") {
@@ -1358,11 +1535,13 @@ document.getElementById("ct").addEventListener('click', function(event) {
 });
 
 document.getElementById("cc").addEventListener('click', function(event) {
-    selectSingleClick.getFeatures().clear();
+    selectSingleClickBefore.getFeatures().clear();
     for (var i = 0; i < fieldArray.length; i++) {
         fieldArray[i].feature.setStyle(null);
     }
-
+    for (var i = 0; i < wascobArray.length; i++) {
+        wascobArray[i].feature.setStyle(null);
+    }
     for (var j in fieldBMPAssignment) {
         console.log(j);
         if (fieldBMPAssignment[j].cc == "Y") {
@@ -1382,11 +1561,13 @@ document.getElementById("cc").addEventListener('click', function(event) {
 });
 
 document.getElementById("nm").addEventListener('click', function(event) {
-    selectSingleClick.getFeatures().clear();
+    selectSingleClickBefore.getFeatures().clear();
     for (var i = 0; i < fieldArray.length; i++) {
         fieldArray[i].feature.setStyle(null);
     }
-
+    for (var i = 0; i < wascobArray.length; i++) {
+        wascobArray[i].feature.setStyle(null);
+    }
     for (var j in fieldBMPAssignment) {
         console.log(j);
         if (fieldBMPAssignment[j].nm == "Y") {
@@ -1398,6 +1579,33 @@ document.getElementById("nm").addEventListener('click', function(event) {
         }
     }
 
+    var siblings = event.target.parentNode.childNodes;
+    for (i = 0; i < siblings.length; i++) {
+        siblings[i].disabled = false;
+    }
+    event.target.disabled = true;
+});
+
+document.getElementById("wc").addEventListener('click', function(event) {
+    selectSingleClickBefore.getFeatures().clear();
+    for (var i = 0; i < fieldArray.length; i++) {
+        fieldArray[i].feature.setStyle(null);
+    }
+    for (var i = 0; i < wascobArray.length; i++) {
+        wascobArray[i].feature.setStyle(null);
+    }
+
+    for (var j in fieldBMPAssignment) {
+        console.log(j);
+        if (fieldBMPAssignment[j].wc == "Y") {
+            for (var z = 0; z < wascobArray.length; z++) {
+                console.log(wascobArray[z].field);
+                if (wascobArray[z].field === parseInt(j)) {
+                    wascobArray[z].feature.setStyle(wascobSelectStyle);
+                }
+            }
+        }
+    }
     var siblings = event.target.parentNode.childNodes;
     for (i = 0; i < siblings.length; i++) {
         siblings[i].disabled = false;
@@ -1428,7 +1636,7 @@ $("#evaluationTable").on("click", "td.deleteSelectedFeature", function() {
             fieldArray[i].feature.setStyle(null);
         }
     }
-    selectSingleClick.getFeatures().clear();
+    selectSingleClickBefore.getFeatures().clear();
     fieldBMPAssignment.splice(id, 1);
 });
 
@@ -1510,6 +1718,7 @@ $("#runmodel").click(function(event) {
         data: jsonArray,
         dataType: 'json',
         success: function(r) {
+
             var b = evaluationmap.getLayers().getArray()[1];
             b.setStyle(outletSelectStyle);
 
@@ -1544,23 +1753,23 @@ $("#runmodel").click(function(event) {
                 'name': 'outlet'
             });
 
-            evaluationmap.removeLayer(evaluationmap.getLayers().getArray()[3]);
+            evaluationmap.removeLayer(evaluationmap.getLayers().getArray()[4]);
 
-            fieldJsonp = new ol.layer.Vector({
+            fieldoutput = new ol.layer.Vector({
                 source: new ol.source.Vector({
                     url: '/static/administration/assets/layers/fieldOutput.json',
                     format: new ol.format.GeoJSON()
                 }),
                 style: styleFlowFunction
             });
-            evaluationmap.addLayer(fieldJsonp);
+            evaluationmap.addLayer(fieldoutput);
 
-            evaluationmap.removeInteraction(selectPointerMove);
-            selectPointerMove = new ol.interaction.Select({
-                layers: [fieldJsonp, outletLayer],
+            evaluationmap.removeInteraction(selectPointerMoveBefore);
+            selectPointerMoveAfter = new ol.interaction.Select({
+                layers: [fieldoutput, outletLayer],
                 condition: ol.events.condition.pointerMove,
                 filter: function(feature, layer) {
-                    if (layer === fieldJsonp) {
+                    if (layer === fieldoutput) {
                         if (feature.getProperties().name > 600 && ($('#cost').prop("disabled") || $('#revenue').prop("disabled") || $('#netreturn').prop("disabled"))) {
                             return false;
                         }
@@ -1570,11 +1779,11 @@ $("#runmodel").click(function(event) {
                 },
             });
 
-            evaluationmap.removeInteraction(selectSingleClick);
-            selectSingleClick = new ol.interaction.Select({
-                layers: [fieldJsonp, outletLayer],
+            evaluationmap.removeInteraction(selectSingleClickBefore);
+            selectSingleClickAfter = new ol.interaction.Select({
+                layers: [fieldoutput, outletLayer],
                 filter: function(feature, layer) {
-                    if (layer === fieldJsonp) {
+                    if (layer === fieldoutput) {
                         if (feature.getProperties().name > 600 && ($('#cost').prop("disabled") || $('#revenue').prop("disabled") || $('#netreturn').prop("disabled"))) {
                             return false;
                         }
@@ -1587,7 +1796,7 @@ $("#runmodel").click(function(event) {
             $('#flow').attr("disabled", true);
             $('#flow').siblings().attr("disabled", false);
 
-            selectSingleClick.on('select', function(event) {
+            selectSingleClickAfter.on('select', function(event) {
                 // $(element).hide();
                 var selectedFeature = event.selected[0];
                 if (selectedFeature) {
@@ -1613,7 +1822,7 @@ $("#runmodel").click(function(event) {
                         var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
                         for (var i = 0; i < selectedFeatureID.length; i++) {
                             console.log(selectedFeatureID[i].innerText);
-                            if (selectedFeatureID[i].innerText == id.toString()) {
+                            if (selectedFeatureID[i].innerText == id) {
                                 document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
                             }
                         }
@@ -1631,7 +1840,7 @@ $("#runmodel").click(function(event) {
                 } else {
                     var a = evaluationmap.getLayers().getArray()[1];
                     a.setStyle(outletSelectStyle);
-                    selectSingleClick.getFeatures().clear();
+                    selectSingleClickAfter.getFeatures().clear();
                     if ($('#flow').prop("disabled") === true) {
                         drawOutletChart("flow");
                     }
@@ -1656,7 +1865,7 @@ $("#runmodel").click(function(event) {
                 }
             });
 
-            selectPointerMove.on('select', function(event) {
+            selectPointerMoveAfter.on('select', function(event) {
                 var hoveredResultFeature = event.selected[0];
                 var num;
                 if (hoveredResultFeature) {
@@ -1731,9 +1940,11 @@ $("#runmodel").click(function(event) {
                 }
             });
 
-            evaluationmap.addInteraction(selectSingleClick);
-            evaluationmap.addInteraction(selectPointerMove);
-
+            evaluationmap.addInteraction(selectSingleClickAfter);
+            evaluationmap.addInteraction(selectPointerMoveAfter);
+            for (var i = 0; i < wascobArray.length; i++) {
+                wascobArray[i].feature.setStyle(null);
+            }
             drawOutletChart("flow");
             $("#loading-page").css("visibility", "hidden");
         }
@@ -1741,8 +1952,8 @@ $("#runmodel").click(function(event) {
 });
 
 $("#flow").click(function(event) {
-    selectSingleClick.getFeatures().clear();
-    var a = evaluationmap.getLayers().getArray()[3];
+    selectSingleClickAfter.getFeatures().clear();
+    var a = evaluationmap.getLayers().getArray()[4];
     a.setStyle(styleFlowFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
@@ -1753,8 +1964,8 @@ $("#flow").click(function(event) {
 });
 $("#sediment").click(function(event) {
     /* Act on the event */
-    selectSingleClick.getFeatures().clear();
-    var a = evaluationmap.getLayers().getArray()[3];
+    selectSingleClickAfter.getFeatures().clear();
+    var a = evaluationmap.getLayers().getArray()[4];
     a.setStyle(styleSedimentFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
@@ -1764,8 +1975,8 @@ $("#sediment").click(function(event) {
 });
 $("#tn").click(function(event) {
     /* Act on the event */
-    selectSingleClick.getFeatures().clear();
-    var a = evaluationmap.getLayers().getArray()[3];
+    selectSingleClickAfter.getFeatures().clear();
+    var a = evaluationmap.getLayers().getArray()[4];
     a.setStyle(styleTnFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
@@ -1775,8 +1986,8 @@ $("#tn").click(function(event) {
 });
 $("#tp").click(function(event) {
     /* Act on the event */
-    selectSingleClick.getFeatures().clear();
-    var a = evaluationmap.getLayers().getArray()[3];
+    selectSingleClickAfter.getFeatures().clear();
+    var a = evaluationmap.getLayers().getArray()[4];
     a.setStyle(styleTpFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
@@ -1788,8 +1999,8 @@ $("#tp").click(function(event) {
 
 $("#cost").click(function(event) {
     /* Act on the event */
-    selectSingleClick.getFeatures().clear();
-    var a = evaluationmap.getLayers().getArray()[3];
+    selectSingleClickAfter.getFeatures().clear();
+    var a = evaluationmap.getLayers().getArray()[4];
     a.setStyle(styleCostFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
@@ -1800,8 +2011,8 @@ $("#cost").click(function(event) {
 
 $("#revenue").click(function(event) {
     /* Act on the event */
-    selectSingleClick.getFeatures().clear();
-    var a = evaluationmap.getLayers().getArray()[3];
+    selectSingleClickAfter.getFeatures().clear();
+    var a = evaluationmap.getLayers().getArray()[4];
     a.setStyle(styleRevenueFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
@@ -1812,8 +2023,8 @@ $("#revenue").click(function(event) {
 
 $("#netreturn").click(function(event) {
     /* Act on the event */
-    selectSingleClick.getFeatures().clear();
-    var a = evaluationmap.getLayers().getArray()[3];
+    selectSingleClickAfter.getFeatures().clear();
+    var a = evaluationmap.getLayers().getArray()[4];
     a.setStyle(styleNetReturnFunction);
     var b = evaluationmap.getLayers().getArray()[1];
     b.setStyle(outletSelectStyle);
@@ -1823,7 +2034,7 @@ $("#netreturn").click(function(event) {
 });
 
 function drawOutletChart(s) {
-    selectSingleClick.getFeatures().clear();
+    selectSingleClickAfter.getFeatures().clear();
 
     var data = [];
     var dataAverage = [];

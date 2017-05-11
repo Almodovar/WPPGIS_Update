@@ -119,12 +119,14 @@ div.tab .tabbtn.active {
 
 #evaluationmap {
     width: 100%;
-    height: 550px;
+    /*height: 550px;*/
+    height: 820px;
 }
 
 #optimizationmap {
     width: 100%;
-    height: 550px;
+    /*height: 550px;*/
+    height: 820px;
 }
 
 .bmptable {
@@ -193,6 +195,7 @@ div.tab .tabbtn.active {
 }
 
 .chart {
+    display: none;
     margin-top: 10px;
     height: 270px;
 }

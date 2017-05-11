@@ -500,6 +500,7 @@ var visualization = d3plus.viz()
 var fieldArray = [];
 var subbasinArray = [];
 var wascobArray = [];
+var wascobArray2 = [];
 
 function Subbasin(id, feature, flow, sediment, tn, tp) {
     this.id = id;
@@ -635,6 +636,27 @@ wascobJsonp.getSource().on('addfeature', function(event) {
     }
 });
 
+var wascobJsonp2 = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        url: '/static/administration/assets/layers/wascob.geojson',
+        format: new ol.format.GeoJSON()
+    }),
+    style: wascobStyle,
+    zIndex: 10,
+});
+
+wascobJsonp2.getSource().on('addfeature', function(event) {
+    wascobArray2 = [];
+    var wascobFeatures = wascobJsonp2.getSource().getFeatures();
+    for (i = 0; i < wascobFeatures.length; i++) {
+        var wascob = new WasCobs();
+        wascob.id = wascobFeatures[i].getProperties().NAME;
+        wascob.feature = wascobFeatures[i];
+        wascob.field = wascobFeatures[i].getProperties().Field;
+        wascob.subbasin = wascobFeatures[i].getProperties().SUBBASIN;
+        wascobArray2.push(wascob);
+    }
+});
 // ****************************************************
 // Outlet layer loaded from geoserver in Jsonp format
 // Be sure to enable the Jsonp function in the web.xml
@@ -1031,7 +1053,7 @@ var selectSingleClickBefore = new ol.interaction.Select({
     },
 });
 
-var selectPointerMove2 = new ol.interaction.Select({
+var selectPointerMove2Before = new ol.interaction.Select({
     layers: [fieldJsonp2],
     condition: ol.events.condition.pointerMove,
     filter: function(feature, layer) {
@@ -1218,7 +1240,8 @@ selectPointerMoveBefore.on('select', function(event) {
         $(element).hide();
     }
 });
-selectPointerMove2.on('select', function(event) {
+var selectPointerMove2After;
+selectPointerMove2Before.on('select', function(event) {
     hoveredFeature = event.selected[0];
     if (hoveredFeature) {
         var coordinate = ol.extent.getCenter(hoveredFeature.getGeometry().getExtent());
@@ -1373,7 +1396,7 @@ var optimizationmap = new ol.Map({
     layers: [
         new ol.layer.Tile({
             source: new ol.source.OSM()
-        }), vector2, fieldJsonp2,
+        }), vector2, wascobJsonp2, fieldJsonp2
     ],
     target: 'optimizationmap',
     view: new ol.View({
@@ -1384,7 +1407,7 @@ var optimizationmap = new ol.Map({
 
 optimizationmap.addOverlay(infoOverlay2);
 optimizationmap.addInteraction(selectSingleClick2);
-optimizationmap.addInteraction(selectPointerMove2);
+optimizationmap.addInteraction(selectPointerMove2Before);
 
 var fieldBMPAssignment = [];
 var subbasinBMPAssignment = [];
@@ -1478,7 +1501,7 @@ source2.on('addfeature', function(evt) {
     var feature = evt.feature;
     var coords = feature.getGeometry().getCoordinates();
     console.log(coords);
-    var a = optimizationmap.getLayers().getArray()[2];
+    var a = optimizationmap.getLayers().getArray()[3];
     a.getSource().forEachFeatureIntersectingExtent(feature.getGeometry().getExtent(), function(feature) {
         if (feature.getProperties().Name < 600) {
             var exist = false;
@@ -1500,9 +1523,7 @@ source2.on('addfeature', function(evt) {
                     " " + '</a></td><td style="padding-top:11px;"><a class="table-edit" data-type="select">' +
                     ' ' + '</a></td><td class="deleteSelectedFeature" style="white-space: nowrap;width: 1%;"><a class="btn btn-danger btn-sm" aria-label="Delete"><i class="fa fa-trash-o " aria-hidden="true"></i></a></td></tr>');
             }
-
         }
-
     });
     source2.clear();
     console.log(optimizationFeatureList.length);
@@ -1939,7 +1960,9 @@ $("#runmodel").click(function(event) {
                     $(element).hide();
                 }
             });
-
+            $("#evaluationmap").css("height", "550px");
+            evaluationmap.updateSize();
+            $("#evaluationchart").css("display", "block");
             evaluationmap.addInteraction(selectSingleClickAfter);
             evaluationmap.addInteraction(selectPointerMoveAfter);
             for (var i = 0; i < wascobArray.length; i++) {
@@ -2702,11 +2725,11 @@ $("#runoptimization").click(function(event) {
             console.log(r[0].NetReturn);
             console.log("optimization done");
             $("#runoptimization").attr('disabled', true);
-
             $("#runoptimization").html('Start Optimization');
             $("#getoptimizationrange").attr('disabled', false);
-            optimizationmap.removeInteraction(selectPointerMove2);
-            selectPointerMove2 = new ol.interaction.Select({
+
+            optimizationmap.removeInteraction(selectPointerMove2Before);
+            selectPointerMove2After = new ol.interaction.Select({
                 // layers: [fieldJsonp2],
                 condition: ol.events.condition.pointerMove,
                 filter: function(feature, layer) {
@@ -2718,7 +2741,7 @@ $("#runoptimization").click(function(event) {
                     return false;
                 },
             });
-            selectPointerMove2.on('select', function(event) {
+            selectPointerMove2After.on('select', function(event) {
                 var hoveredOptimizationResultFeature = event.selected[0];
                 var num;
 
@@ -2760,12 +2783,14 @@ $("#runoptimization").click(function(event) {
                     $(element2).hide();
                 }
             });
-            optimizationmap.addInteraction(selectPointerMove2);
+            $("#optimizationmap").css("height", "550px");
+            optimizationmap.updateSize();
+            $("#optimizationchart").css("display", "block");
+            optimizationmap.addInteraction(selectPointerMove2After);
             drawOptimizationChart(r);
             optimizationLayer = renderOptimizationMap("01", optimizationConfig.selectedType);
             drawOptimizationTable(optimizationLayer);
             $("#loading-page2").css("visibility", "hidden");
-
         },
     });
 });
@@ -2969,7 +2994,7 @@ var fieldOptimizationResult = function(iterationNum, selectedOptimizationType) {
 
 function renderOptimizationMap(iterationNum, selectedOptimizationType) {
     var optimizationFieldLayer = fieldOptimizationResult(iterationNum, selectedOptimizationType);
-    optimizationmap.removeLayer(optimizationmap.getLayers().getArray()[2]);
+    optimizationmap.removeLayer(optimizationmap.getLayers().getArray()[3]);
     optimizationmap.addLayer(optimizationFieldLayer);
     return optimizationFieldLayer;
 }
@@ -3063,7 +3088,7 @@ $("#ecoMode").click(function(event) {
 
 $("#optFlow").click(function(event) {
     selectSingleClick2.getFeatures().clear();
-    var a = optimizationmap.getLayers().getArray()[2];
+    var a = optimizationmap.getLayers().getArray()[3];
     a.setStyle(optStyleFlowFunction); // var b = evaluationmap.getLayers().getArray()[1];
     // b.setStyle(outletSelectStyle);
     // drawOutletChart("flow");
@@ -3074,7 +3099,7 @@ $("#optFlow").click(function(event) {
 $("#optSediment").click(function(event) {
     /* Act on the event */
     selectSingleClick2.getFeatures().clear();
-    var a = optimizationmap.getLayers().getArray()[2];
+    var a = optimizationmap.getLayers().getArray()[3];
     a.setStyle(optStyleSedimentFunction); // var b = evaluationmap.getLayers().getArray()[1];
     // b.setStyle(outletSelectStyle);
     // drawOutletChart("sediment");
@@ -3084,7 +3109,7 @@ $("#optSediment").click(function(event) {
 $("#optTn").click(function(event) {
     /* Act on the event */
     selectSingleClick2.getFeatures().clear();
-    var a = optimizationmap.getLayers().getArray()[2];
+    var a = optimizationmap.getLayers().getArray()[3];
     a.setStyle(optStyleTnFunction); // var b = evaluationmap.getLayers().getArray()[1];
     // b.setStyle(outletSelectStyle);
     // drawOutletChart("tn");
@@ -3094,7 +3119,7 @@ $("#optTn").click(function(event) {
 $("#optTp").click(function(event) {
     /* Act on the event */
     selectSingleClick2.getFeatures().clear();
-    var a = optimizationmap.getLayers().getArray()[2];
+    var a = optimizationmap.getLayers().getArray()[3];
     a.setStyle(optStyleTpFunction);
     // var b = evaluationmap.getLayers().getArray()[1];
     // b.setStyle(outletSelectStyle);
@@ -3105,9 +3130,10 @@ $("#optTp").click(function(event) {
 
 $("#optReset").click(function(event) {
     /* Act on the event */
+    $("#optReset").attr("disabled", true);
+    $("#optReset").siblings().attr("disabled", false);
+
     optimizationFeatureList = [];
-    var a = optimizationmap.getLayers().getArray()[2];
-    a.setStyle(fieldStyle);
     document.getElementById("optmizationTable").innerHTML = `<tr>
                                 <th style="padding-top:11px;">ID</th>
                                 <th style="padding-top:11px;">CC</th>
@@ -3116,4 +3142,15 @@ $("#optReset").click(function(event) {
                                 <th style="padding-top:11px;">WasCobs</th>
                                 <th style="padding-top:11px;">Del</th>
                             </tr>`;
+
+    var features = fieldJsonp2.getSource().getFeatures();
+    for (var i = 0; i < features.length; i++) {
+        features[i].setStyle(null);
+    }
+    optimizationmap.removeLayer(optimizationmap.getLayers().getArray()[3]);
+    optimizationmap.addLayer(fieldJsonp2);
+    optimizationmap.removeInteraction(selectPointerMove2After);
+    optimizationmap.addInteraction(selectPointerMove2Before);
+    document.getElementById("optRange").value = "";
+    $('#optRange').attr('placeholder', "Range");
 });

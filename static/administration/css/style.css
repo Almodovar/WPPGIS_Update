@@ -328,14 +328,14 @@ td {
     height: 100px;
 }
 
-#loading-info2 #progress-info {
+#loading-info2 #progress-info2 {
     position: relative;
     padding-top: 32px;
     font-size: 32px;
     font-weight: bolder;
 }
 
-#loading-info2 #progress-info #box7 {
+#loading-info2 #progress-info2 #box7 {
     position: absolute;
     height: 100%;
     width: 100%;

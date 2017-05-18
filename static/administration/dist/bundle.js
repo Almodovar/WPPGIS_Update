@@ -14266,7 +14266,7 @@ fieldJsonp.getSource().on('addfeature', function(event) {
 var wascobStyle = new ol.style.Style({
     image: new ol.style.Circle({
         radius: 6,
-        fill: new ol.style.Fill({ color: 'rgba(69,139,225,0.6)' }),
+        fill: new ol.style.Fill({ color: 'rgba(82,21,21,0.6)' }),
         stroke: new ol.style.Stroke({ color: 'white', width: 1 })
     }),
 });
@@ -14796,7 +14796,7 @@ selectSingleClickBefore.on('select', function(event) {
 
             var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
             for (var i = 0; i < selectedFeatureID.length; i++) {
-                console.log(selectedFeatureID[i].innerText);
+                // console.log(selectedFeatureID[i].innerText);
                 if (selectedFeatureID[i].innerText === id.toString()) {
                     document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
                 }
@@ -14812,7 +14812,7 @@ selectSingleClickBefore.on('select', function(event) {
         if (document.getElementById("wc").disabled) {
             selectedFeature.setStyle(wascobSelectStyle);
             var id = selectedFeature.getProperties().Field;
-            console.log(typeof id);
+            // console.log(typeof id);
             if (fieldBMPAssignment[id] === undefined) {
                 fieldBMPAssignment[id] = {
                     cc: 'Y',
@@ -14825,8 +14825,8 @@ selectSingleClickBefore.on('select', function(event) {
 
             var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
             for (var i = 0; i < selectedFeatureID.length; i++) {
-                console.log(typeof selectedFeatureID[i].innerText);
-                console.log(typeof id);
+                // console.log(typeof selectedFeatureID[i].innerText);
+                // console.log(typeof id);
                 if (selectedFeatureID[i].innerText === id.toString()) {
                     document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
                 }
@@ -15081,13 +15081,13 @@ var subbasinBMPAssignment = [];
 source.on('addfeature', function(evt) {
     var feature = evt.feature;
     var coords = feature.getGeometry().getCoordinates();
-    console.log(coords);
+    // console.log(coords);
     if (document.getElementById("runmodel").disabled === false) {
         if (document.getElementsByClassName('bmpbtn')[0].disabled || document.getElementsByClassName('bmpbtn')[1].disabled || document.getElementsByClassName('bmpbtn')[2].disabled) {
             fieldJsonp.getSource().forEachFeatureIntersectingExtent(feature.getGeometry().getExtent(), function(feature) {
                 if (feature.getProperties().Name < 600) {
-                    console.log("hi");
-                    console.log(feature.getProperties().Name);
+                    // console.log("hi");
+                    // console.log(feature.getProperties().Name);
                     feature.setStyle(selectedStyle);
                     var id = feature.getProperties().Name;
 
@@ -15113,7 +15113,7 @@ source.on('addfeature', function(evt) {
 
                     var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
                     for (var i = 0; i < selectedFeatureID.length; i++) {
-                        console.log(selectedFeatureID[i].innerText);
+                        // console.log(selectedFeatureID[i].innerText);
                         if (selectedFeatureID[i].innerText == id) {
                             document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
                         }
@@ -15146,7 +15146,7 @@ source.on('addfeature', function(evt) {
 
                 var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
                 for (var i = 0; i < selectedFeatureID.length; i++) {
-                    console.log(selectedFeatureID[i].innerText);
+                    // console.log(selectedFeatureID[i].innerText);
                     if (selectedFeatureID[i].innerText == id) {
                         document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
                     }
@@ -15166,13 +15166,13 @@ source.on('addfeature', function(evt) {
 source2.on('addfeature', function(evt) {
     var feature = evt.feature;
     var coords = feature.getGeometry().getCoordinates();
-    console.log(coords);
+    // console.log(coords);
     var a = optimizationmap.getLayers().getArray()[3];
     a.getSource().forEachFeatureIntersectingExtent(feature.getGeometry().getExtent(), function(feature) {
         if (feature.getProperties().Name < 600) {
             var exist = false;
-            console.log("hi");
-            console.log(feature.getProperties().Name);
+            // console.log("hi");
+            // console.log(feature.getProperties().Name);
             feature.setStyle(selectedStyle);
             var id = feature.getProperties().Name;
             for (j = 0; j < optimizationFeatureList.length; j++) {
@@ -15192,7 +15192,7 @@ source2.on('addfeature', function(evt) {
         }
     });
     source2.clear();
-    console.log(optimizationFeatureList.length);
+    // console.log(optimizationFeatureList.length);
 });
 
 document.getElementById("ct").addEventListener('click', function(event) {
@@ -15205,7 +15205,7 @@ document.getElementById("ct").addEventListener('click', function(event) {
         wascobArray[i].feature.setStyle(null);
     }
     for (var j in fieldBMPAssignment) {
-        console.log(j);
+        // console.log(j);
         if (fieldBMPAssignment[j].ct == "Y") {
             for (var z = 0; z < fieldArray.length; z++) {
                 if (fieldArray[z].id === j) {
@@ -15230,7 +15230,7 @@ document.getElementById("cc").addEventListener('click', function(event) {
         wascobArray[i].feature.setStyle(null);
     }
     for (var j in fieldBMPAssignment) {
-        console.log(j);
+        // console.log(j);
         if (fieldBMPAssignment[j].cc == "Y") {
             for (var z = 0; z < fieldArray.length; z++) {
                 if (fieldArray[z].id === j) {
@@ -15256,7 +15256,7 @@ document.getElementById("nm").addEventListener('click', function(event) {
         wascobArray[i].feature.setStyle(null);
     }
     for (var j in fieldBMPAssignment) {
-        console.log(j);
+        // console.log(j);
         if (fieldBMPAssignment[j].nm == "Y") {
             for (var z = 0; z < fieldArray.length; z++) {
                 if (fieldArray[z].id === j) {
@@ -15283,10 +15283,10 @@ document.getElementById("wc").addEventListener('click', function(event) {
     }
 
     for (var j in fieldBMPAssignment) {
-        console.log(j);
+        // console.log(j);
         if (fieldBMPAssignment[j].wc == "Y") {
             for (var z = 0; z < wascobArray.length; z++) {
-                console.log(wascobArray[z].field);
+                // console.log(wascobArray[z].field);
                 if (wascobArray[z].field === parseInt(j)) {
                     wascobArray[z].feature.setStyle(wascobSelectStyle);
                 }
@@ -15339,8 +15339,8 @@ $(document).on('show-loading-page', function() {
 
 
     setTimeout(function fade() {
-        fadeinBox.stop(true, true).fadeIn(1500);
-        fadeoutBox.stop(true, true).fadeOut(1500, function() {
+        fadeinBox.stop(true, true).fadeIn(2000);
+        fadeoutBox.stop(true, true).fadeOut(2000, function() {
             var temp = fadeinBox;
             fadeinBox = nextfadeinBox;
             nextfadeinBox = lastfadeinBox;
@@ -15508,7 +15508,7 @@ $("#runmodel").click(function(event) {
 
                         var selectedFeatureID = document.getElementsByClassName("selectedFeatureID");
                         for (var i = 0; i < selectedFeatureID.length; i++) {
-                            console.log(selectedFeatureID[i].innerText);
+                            // console.log(selectedFeatureID[i].innerText);
                             if (selectedFeatureID[i].innerText == id) {
                                 document.getElementById("evaluationTable").deleteRow(selectedFeatureID[i].parentNode.rowIndex);
                             }
@@ -15649,7 +15649,6 @@ $("#flow").click(function(event) {
     drawOutletChart("flow");
     $("#flow").attr("disabled", true);
     $("#flow").siblings().attr("disabled", false);
-
 });
 $("#sediment").click(function(event) {
     /* Act on the event */
@@ -16373,7 +16372,9 @@ $("#runoptimization").click(function(event) {
     // optimizationConfig.upperLimit = document.getElementById();
 
     $(document).trigger('show-loading-page2');
-    optimizationConfig.lowerLimit = $("#optRange").val();
+    optimizationConfig.upperLimit = $("#optRange").val();
+    console.log(optimizationConfig.upperLimit);
+    console.log(optimizationConfig.lowerLimit);
 
     $("#runoptimization").html('Calculating ...');
     var jsonArray = JSON.stringify(optimizationConfig);
@@ -16386,9 +16387,9 @@ $("#runoptimization").click(function(event) {
         success: function(r) {
             // console.log(r.lowerLimit);
             // console.log(r.lowerLimit + r.upperLimit);
-            console.log(r[0].IterationNum);
-            console.log(r[0].Water);
-            console.log(r[0].NetReturn);
+            // console.log(r[0].IterationNum);
+            // console.log(r[0].Water);
+            // console.log(r[0].NetReturn);
             console.log("optimization done");
             $("#runoptimization").attr('disabled', true);
             $("#runoptimization").html('Start Optimization');
@@ -16453,9 +16454,10 @@ $("#runoptimization").click(function(event) {
             optimizationmap.updateSize();
             $("#optimizationchart").css("display", "block");
             optimizationmap.addInteraction(selectPointerMove2After);
-            drawOptimizationChart(r);
             optimizationLayer = renderOptimizationMap("01", optimizationConfig.selectedType);
             drawOptimizationTable(optimizationLayer);
+            drawOptimizationChart(r);
+
             $("#loading-page2").css("visibility", "hidden");
         },
     });
@@ -16465,17 +16467,23 @@ function drawOptimizationChart(result) {
 
     var chartData = new Object();
     var chartBudgetData = new Object();
+    var chartCostData = new Object();
 
     chartData.name = optimizationConfig.selectedType;
-    chartBudgetData.name = "Cost";
+    chartBudgetData.name = "Revenue";
+    chartCostData.name = "Cost";
 
     var resultArray = [];
     var budgetResultArray = [];
+    var costResultArray = [];
+
     var yAxisValue = "";
     if (optimizationConfig.selectedType === "Flow") {
         for (i = 0; i < result.length; i++) {
             resultArray.push(result[i].Water.toFixed(2));
             budgetResultArray.push(result[i].NetReturn);
+            costResultArray.push(result[i].Cost);
+
         }
         yAxisValue = "Water mm";
         unit = "mm";
@@ -16484,7 +16492,7 @@ function drawOptimizationChart(result) {
         for (i = 0; i < result.length; i++) {
             resultArray.push(result[i].Sediment.toFixed(2));
             budgetResultArray.push(result[i].NetReturn);
-
+            costResultArray.push(result[i].Cost);
         }
         yAxisValue = "Sediment ton";
         unit = "ton";
@@ -16494,7 +16502,7 @@ function drawOptimizationChart(result) {
         for (i = 0; i < result.length; i++) {
             resultArray.push(result[i].TP.toFixed(2));
             budgetResultArray.push(result[i].NetReturn);
-
+            costResultArray.push(result[i].Cost);
         }
         yAxisValue = "Total P kg";
         unit = "kg";
@@ -16503,28 +16511,40 @@ function drawOptimizationChart(result) {
         for (i = 0; i < result.length; i++) {
             resultArray.push(result[i].TN.toFixed(2));
             budgetResultArray.push(result[i].NetReturn);
-
+            costResultArray.push(result[i].Cost);
         }
         yAxisValue = "Total N kg";
         unit = "kg";
     }
 
     chartData.data = resultArray;
-    chartBudgetData.data = budgetResultArray;
+    chartBudgetData.data = budgetResultArray.reverse();
+    chartCostData.data = costResultArray;
+
 
     Highcharts.chart('optimizationchart', {
         title: {
             text: '',
         },
         xAxis: {
+            title: {
+                text: 'Pollution deduction',
+            },
             categories: chartData.data
         },
         yAxis: [{ // Primary yAxis
 
-            title: {
-                text: 'BMP Cost (dollar)',
+                title: {
+                    text: 'Cost (dollar)',
+                }
             }
-        }],
+            // ,{ // Primary yAxis
+
+            //     title: {
+            //         text: 'Netreturn (dollar)',
+            //     }
+            // }
+        ],
         credits: {
             enabled: false
         },
@@ -16536,72 +16556,120 @@ function drawOptimizationChart(result) {
             }
         },
         series: [{
-            name: 'BMP Cost',
-            data: chartBudgetData.data,
-            showInLegend: false,
-            point: {
-                events: {
-                    select: function(event) {
+                name: 'Cost',
+                data: chartBudgetData.data,
+                showInLegend: false,
+                point: {
+                    events: {
+                        select: function(event) {
 
-                        // console.log(this.series.data[1].selected);
-                        // console.log(this == this.series.data[1]);
-                        var optimizationLayer;
+                            // console.log(this.series.data[1].selected);
+                            // console.log(this == this.series.data[1]);
+                            var optimizationLayer;
 
-                        if (this == this.series.data[0]) {
-                            optimizationLayer = renderOptimizationMap("01", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
+                            if (this == this.series.data[0]) {
+                                optimizationLayer = renderOptimizationMap("01", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
 
-                        if (this == this.series.data[1]) {
-                            optimizationLayer = renderOptimizationMap("02", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[2]) {
-                            optimizationLayer = renderOptimizationMap("03", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[3]) {
-                            optimizationLayer = renderOptimizationMap("04", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[4]) {
-                            optimizationLayer = renderOptimizationMap("05", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[5]) {
-                            optimizationLayer = renderOptimizationMap("06", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[6]) {
-                            optimizationLayer = renderOptimizationMap("07", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[7]) {
-                            optimizationLayer = renderOptimizationMap("08", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[8]) {
-                            optimizationLayer = renderOptimizationMap("09", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        if (this == this.series.data[9]) {
-                            optimizationLayer = renderOptimizationMap("10", optimizationConfig.selectedType);
-                            drawOptimizationTable(optimizationLayer);
-                        }
-                        // if (optimizationChart.series[0].data[1] === this) {
-                        //     optimizationLayer = renderOptimizationMap("02", optimizationConfig.selectedType);
-                        //     drawOptimizationTable(optimizationLayer);
-                        // }                        
-                    },
-                    // unselect: function(event) {
-                    //     var p = this.series.chart.getSelectedPoints();
-                    //     if(p.length > 0 && p[0].x == this.x) {
-                    //         $('#label').text('point unselected');
-                    //     }
-                    // }
+                            if (this == this.series.data[1]) {
+                                optimizationLayer = renderOptimizationMap("02", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[2]) {
+                                optimizationLayer = renderOptimizationMap("03", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[3]) {
+                                optimizationLayer = renderOptimizationMap("04", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[4]) {
+                                optimizationLayer = renderOptimizationMap("05", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[5]) {
+                                optimizationLayer = renderOptimizationMap("06", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[6]) {
+                                optimizationLayer = renderOptimizationMap("07", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[7]) {
+                                optimizationLayer = renderOptimizationMap("08", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[8]) {
+                                optimizationLayer = renderOptimizationMap("09", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                            if (this == this.series.data[9]) {
+                                optimizationLayer = renderOptimizationMap("10", optimizationConfig.selectedType);
+                                drawOptimizationTable(optimizationLayer);
+                            }
+                        },
+                    }
                 }
             }
-        }]
+            // ,{
+            //     name: 'Revenue',
+            //     data: chartBudgetData.data,
+            //     showInLegend: false,
+            //     point: {
+            //         events: {
+            //             select: function(event) {
+
+            //                 // console.log(this.series.data[1].selected);
+            //                 // console.log(this == this.series.data[1]);
+            //                 var optimizationLayer;
+
+            //                 if (this == this.series.data[0]) {
+            //                     optimizationLayer = renderOptimizationMap("01", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+
+            //                 if (this == this.series.data[1]) {
+            //                     optimizationLayer = renderOptimizationMap("02", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[2]) {
+            //                     optimizationLayer = renderOptimizationMap("03", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[3]) {
+            //                     optimizationLayer = renderOptimizationMap("04", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[4]) {
+            //                     optimizationLayer = renderOptimizationMap("05", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[5]) {
+            //                     optimizationLayer = renderOptimizationMap("06", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[6]) {
+            //                     optimizationLayer = renderOptimizationMap("07", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[7]) {
+            //                     optimizationLayer = renderOptimizationMap("08", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[8]) {
+            //                     optimizationLayer = renderOptimizationMap("09", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //                 if (this == this.series.data[9]) {
+            //                     optimizationLayer = renderOptimizationMap("10", optimizationConfig.selectedType);
+            //                     drawOptimizationTable(optimizationLayer);
+            //                 }
+            //             },
+            //         }
+            //     }
+            // }
+        ]
     });
 
 }

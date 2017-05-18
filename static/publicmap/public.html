@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title></title>
+    <title>Public System</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://openlayers.org/en/v4.0.1/css/ol.css" type="text/css">
@@ -25,15 +25,16 @@
                             <div class="form-group form-group-sm" style="width: 100%;">
                                 <label class="col-sm-2 control-label" for="formGroupInputSmall">GET</label>
                                 <div class="col-sm-8">
+                                    <label for="mapSelector" style="display: none">Place</label>
                                     <input class="form-control" type="text" id="mapSelector" placeholder="NAME OF PLACE">
                                 </div>
                                 <div class="col-sm-1">
-                                    <a class="btn btn-danger btn-sm backHome" role="button"><i class="fa fa-home" aria-hidden="true"></i>  BACK</a>
+                                    <a class="btn btn-danger btn-sm backHome" role="button"><span class="fa fa-home" aria-hidden="true"></span>  BACK</a>
                                 </div>
                                 <div class="col-sm-8 col-sm-push-2">
                                     <div id="mapSelectListDiv">
-                                        <div>
-                                            Gully Creek Watershed
+                                        <div id="gcmap">
+                                            GULLY CREEK WATERSHED
                                         </div>
                                     </div>
                                 </div>
@@ -50,6 +51,7 @@
                                 <a id="lTag" class="commentTag">livestock</a>
                                 <a id="tagNotice" class="notice"></a>
                             </div>
+                            <label for="commentText" style="display: none">comment</label>
                             <textarea id="commentText" rows="3" style="margin-top: 15px;"></textarea>
                             <div style="text-align: center ">
                                 <a class="commentLevel">1</a>
@@ -61,13 +63,19 @@
                             </div>
                             <div style="text-align: center; margin-top: 10px;">
                                 <a id="commentSubmitBtn" style="margin-right: 5px;text-decoration: none;font-size: 12px;font-family: 'Rajdhani', sans-serif; ">
-                                    <i class="fa fa-check" aria-hidden="true"></i> submit
+                                    <span class="fa fa-check" aria-hidden="true"></span> submit
                                 </a>
                                 <a id="commentCancelBtn" style="margin-left: 5px; text-decoration: none;font-size: 12px;font-family: 'Rajdhani', sans-serif;  ">
-                                    <i class="fa fa-close" aria-hidden="true"></i> close
+                                    <span class="fa fa-close" aria-hidden="true"></span> close
                                 </a>
                             </div>
                         </div>
+                    </div>
+                    <!--                     <div id="mapinfo">
+                        Gully Creek Watershed
+                    </div> -->
+                    <div id="lakeinfo">
+                        Lake Huron
                     </div>
                     <div id="publicNote">
                         <div>
@@ -115,11 +123,11 @@
                             </p>
                         </div>
                         <div class="buttonCenterDiv">
-                            <!--<button class="button button-large button-plain button-border button-circle"><i class="fa fa-reply"></i></button>-->
-                            <a class="button button-border button-rounded button-primary" id="btnPublicMap"><i class="fa fa-arrow-circle-o-left" aria-hidden="true"></i></a>
+                            <!--<button class="button button-large button-plain button-border button-circle"><span class="fa fa-reply"></span></button>-->
+                            <a class="button button-border button-rounded button-primary" id="btnPublicMap"><span class="fa fa-arrow-circle-o-left" aria-hidden="true"></span></a>
                             <!--<span class="button-wrap">
                             <button class="button button-circle button-raised button-primary" id="btnPublicMap">
-                                <i class="fa fa-arrow-circle-o-left" aria-hidden="true"></i>    
+                                <span class="fa fa-arrow-circle-o-left" aria-hidden="true"></span>    
                             </button>
                             </span>-->
                         </div>
@@ -137,7 +145,7 @@
                             </p>
                         </div>
                         <div class="buttonCenterDiv">
-                            <a class="button button-border button-rounded button-primary" id="btnEducation"><i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i></a>
+                            <a class="button button-border button-rounded button-primary" id="btnEducation"><span class="fa fa-arrow-circle-o-down" aria-hidden="true"></span></a>
                         </div>
                     </div>
                     <div id="linkViewHistory">
@@ -152,7 +160,7 @@
                             </p>
                         </div>
                         <div class="buttonCenterDiv">
-                            <a class="button button-border button-rounded button-primary" id="btnViewHistory"><i class="fa fa-arrow-circle-o-right " aria-hidden="true"></i></a>
+                            <a class="button button-border button-rounded button-primary" id="btnViewHistory"><span class="fa fa-arrow-circle-o-right " aria-hidden="true"></span></a>
                         </div>
                     </div>
                 </div>
@@ -170,12 +178,13 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="input-group input-group-lg">
-                                <span class="input-group-addon" style="background:white"><i class="fa fa-search" aria-hidden="true" style="color: #5bc0de"></i></span>
+                                <span class="input-group-addon" style="background:white"><span class="fa fa-search" aria-hidden="true" style="color: #5bc0de"></span></span>
+                                <label for="searchWordInput" style="display: none">keyword</label>
                                 <input type="text" id="searchWordInput" class="form-control" placeholder="" aria-describedby="sizing-addon1" style="text-align: center;font-family: 'Rajdhani', sans-serif; font-size: 24px ">
                             </div>
                         </div>
                         <div class="col-sm-3">
-                            <a class="btn btn-danger btn-sm backHome" role="button"><i class="fa fa-home" aria-hidden="true"></i>  BACK</a>
+                            <a class="btn btn-danger btn-sm backHome" role="button"><span class="fa fa-home" aria-hidden="true"></span>  BACK</a>
                         </div>
                     </div>
                 </div>
@@ -186,23 +195,62 @@
                                 News
                             </div>
                             <div class="news">
-                                Title: <a href="">link</a>
+                                <p class="resourcetitle"><a href="http://news.gov.mb.ca/news/index.html?archive=&item=41438" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank">MANITOBA AGRICULTURE ADVISES BEST MANAGEMENT PRACTICES FOR DISEASE PREVENTION </a></p>
+                            </div>
+                            <div class="news">
+                                <p class="resourcetitle"><a href="http://ijc.org/greatlakesconnection/en/2017/04/great-lakes-residents-pack-ijc-public-meetings-voice-thoughts-concerns/" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank">Great Lakes Residents Pack IJC Public Meetings to Voice Their Thoughts and Concerns </a></p>
+                            </div>
+                            <div class="news">
+                                <p class="resourcetitle"><a href="http://greatlakestoday.org/post/latest-news-montreal-lake-ontario-flooding" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank">Latest news on Montreal, Lake Ontario flooding </a></p>
+                            </div>
+                            <div class="news">
+                                <p class="resourcetitle"><a href="http://infosuperior.com/blog/2017/05/01/what-did-the-great-lakes-look-like-before-environmental-regulations/" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank">What Did The Great Lakes Look Like Before Environmental Regulations? </a></p>
+                            </div>
+                            <div class="news">
+                                <p class="resourcetitle"><a href="http://www.naturalnews.com/2017-04-19-thousands-of-dead-fish-wash-up-on-lake-michigan.html" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank">Thousands of dead fish wash up on Lake Michigan </a></p>
+                            </div>
+                            <div class="news">
+                                <p class="resourcetitle"><a href="https://www.dal.ca/news/2017/04/24/dal-research-to-help-farmers-adopt-clean-technologies-and-practi.html" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank">DAL RESEARCH TO HELP FARMERS ADOPT CLEAN TECHNOLOGIES AND PRACTICES RECEIVES $1.7M </a></p>
+                            </div>
+                            <div class="news">
+                                <p class="resourcetitle"><a href="https://www.canadiancattlemen.ca/2017/05/01/species-at-risk-adds-new-emphasis-to-managing-grasslands/" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank">Species at risk adds new emphasis to managing grasslands </a></p>
                             </div>
                         </div>
                         <div class="contentWrapper col-sm-8">
                             <div class="resultItem">
+                                <p class="resulttitle">Best Management Practices Series <a href="http://www.omafra.gov.on.ca/english/environment/bmp/series.htm" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> Source: http://www.omafra.gov.on.ca/english/environment/bmp/series.htm</a></p>
+                                <p class="resultcontent">Farming is a business with many risks: the weather, finances, and market uncertainties. Today, we also realize that certain farming practices may create environmental risks that affect the water quality.
+                                </p>
                             </div>
                             <div class="resultItem">
+                                <p class="resulttitle">Best management practice for water pollution <a href="https://en.wikipedia.org/wiki/Best_management_practice_for_water_pollution" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> Source: https://en.wikipedia.org/wiki/Best_management_practice_for_water_pollution</a></p>
+                                <p class="resultcontent">...schedules of activities, prohibitions of practices, maintenance procedures, and other management practices to prevent or reduce the pollution of waters of the United States, BMPs also include treatment requirements, operating procedures, and practices to control plant site runoff, spillage or leaks, sludge or waste ...
+                                </p>
                             </div>
                             <div class="resultItem">
+                                <p class="resulttitle">Guidelines and Best Management Practices - Ministry of Environment <a href="www.env.gov.bc.ca/wld/BMP/bmpintro.html" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> Source: www.env.gov.bc.ca/wld/BMP/bmpintro.html</a></p>
+                                <p class="resultcontent">Guidelines and Best Management Practices (BMPs) are approaches based on known science that, if followed, should allow the client to meet the required ...
+                                </p>
                             </div>
                             <div class="resultItem">
+                                <p class="resulttitle">Beneficial Management Practices: Environmental Manual for Livestock ... <a href="www1.agric.gov.ab.ca/$Department/deptdocs.nsf/all/agdex13088" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> Source: www1.agric.gov.ab.ca/$Department/deptdocs.nsf/all/agdex13088</a></p>
+                                <p class="resultcontent">What is a Beneficial Management Practice or “BMP”? A BMP ... BMP Environmental Manual for Alberta Farmsteads (Agdex 090-1); BMP Environmental Manual for Crop Producers ... Alberta Agriculture and Rural Development
+                                </p>
                             </div>
                             <div class="resultItem">
+                                <p class="resulttitle">Agricultural Management Practices for Water Quality Protection - EPA <a href="https://cfpub.epa.gov/watertrain/moduleFrame.cfm?parent_object_id=1362" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> Source: https://cfpub.epa.gov/watertrain/moduleFrame.cfm?parent_object_id=1362</a></p>
+                                <p class="resultcontent">Welcome to the Agricultural Management Practices for Water Quality Protection ... These practices are often called Best Management Practices, or BMPs.
+                                </p>
                             </div>
                             <div class="resultItem">
+                                <p class="resulttitle">Beneficial Management Practices Guidelines | Farm Stewardship ... <a href="https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/agribusiness-farmers-and-ranchers/growing-forward-2/environment-programs/farm-stewardship-program/beneficial-management-practices" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> Source: https://www.saskatchewan.ca/.../agriculture.../beneficial-management-practices</a></p>
+                                <p class="resultcontent">Farming is a business with many risks: the weather, finances, and market uncertainties. Today, we also realize that certain farming practices may create environmental risks that affect the water quality.
+                                </p>
                             </div>
                             <div class="resultItem">
+                                <p class="resulttitle">Best Management Practices - Government of Prince Edward Island <a href="http://https://www.princeedwardisland.ca/en/topic/agriculture-and-fisheries" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> Source: www.gov.pe.ca/agriculture/index.php3?number=69243&lang=E</a></p>
+                                <p class="resultcontent">Farming is a business with many risks: the weather, finances, and market uncertainties. Today, we also realize that certain farming practices may create environmental risks that affect the water quality.
+                                </p>
                             </div>
                         </div>
                         <div class="contentWrapper col-sm-2">
@@ -210,7 +258,24 @@
                                 Resources
                             </div>
                             <div class="resources">
-                                Title: <a href="">link</a>
+                                <p class="resourcetitle"><a href="https://www5.agr.gc.ca/resources/prod/doc/pfra/pdf/Agric_bmp_e.pdf" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> [PDF] agricultural best management practices - Agriculture et ...</a>
+                                </p>
+                            </div>
+                            <div class="resources">
+                                <p class="resourcetitle"><a href="https://www1.agric.gov.ab.ca/$department/deptdocs.nsf/all/wqe11302/$FILE/agribtme.pdf" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> [PDF] Agricultural best management practices</a>
+                                </p>
+                            </div>
+                            <div class="resources">
+                                <p class="resourcetitle"><a href="https://digitool.library.mcgill.ca/thesisfile92370.pdf" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> [PDF] Beneficial Management Practice (BMP) Adoption by ... - McGill Universit</a>
+                                </p>
+                            </div>
+                            <div class="resources">
+                                <p class="resourcetitle"><a href="https://www.gov.pe.ca/photos/original/af_bmp_wastemgt.pdf" style=" font-size: 14px;" rel="noopener noreferrer" target="_blank"> [PDF] Best Management Practices: Agricultural Waste Management</a>
+                                </p>
+                            </div>
+                            <div class="resources">
+                                <p class="resourcetitle"><a href="https://www.soilcc.ca/downloads/factsheets/BMP%20Factsheet%20Eng2.pdf" style="font-size: 14px;" rel="noopener noreferrer" target="_blank"> [PDF] Best Management Practices - Soil Conservation Council of Canada</a>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -220,16 +285,16 @@
                     </div>
                     <div class="col-sm-6" style="text-align: center">
                         <button class="button button-primary button-box button-giant  social-media">
-                            <i class="fa fa-twitter"></i>
+                            <span class="fa fa-twitter"></span>
                         </button>
                         <button class="button button-caution button-box button-raised button-giant  social-media">
-                            <i class="fa fa-google"></i>
+                            <span class="fa fa-google"></span>
                         </button>
                         <button class="button button-primary button-box button-giant  social-media">
-                            <i class="fa fa-facebook-square"></i>
+                            <span class="fa fa-facebook-square"></span>
                         </button>
                         <button class="button button-highlight button-box button-giant button-longshadow-expand social-media">
-                            <i class="fa fa-wikipedia-w"></i>
+                            <span class="fa fa-wikipedia-w"></span>
                         </button>
                     </div>
                     <div class="col-sm-2 col-sm-offset-1">

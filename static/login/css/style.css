@@ -80,3 +80,7 @@ input.warning::-webkit-input-placeholder { /* WebKit, Blink, Edge */
 :-ms-input-placeholder { /* Internet Explorer 10-11 */
    color:    #909;
 }
+
+label{
+    display: none;
+}

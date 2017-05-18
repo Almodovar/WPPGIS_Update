@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title></title>
+    <title>Administration</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://openlayers.org/en/v4.0.1/css/ol.css" type="text/css">
@@ -63,13 +63,13 @@
                     <div class="col-sm-4 text-center">
                         <p style="line-height:400%">Scenario
                             <br>
-                            <span style="font-size:20px;font-weight:bold;">80 / <span style="color:red">30</span></span>
+                            <span style="font-size:20px;font-weight:bold;">80 / <span style="color:blue">30</span></span>
                         </p>
                     </div>
                     <div class="col-sm-4 text-center">
                         <p style="line-height:400%">Request
                             <br>
-                            <span style="font-size:20px;font-weight:bold;">100 / <span style="color:red">20</span></span>
+                            <span style="font-size:20px;font-weight:bold;">100 / <span style="color:blue">20</span></span>
                         </p>
                     </div>
                 </div>
@@ -208,6 +208,7 @@
                         </div>
                     </div>
                     <div class="col-sm-4">
+                        <label for="search1" style="display: none">search feature</label>
                         <input class="searchinput" type="text" placeholder="Search" id="search1">
                         <button class="button button-caution  button-rounded button-small " id="bmpconfigreset" style="float:right; margin-left: 10px;">Reset</button>
                         <button class="button button-caution button-rounded button-small " id="runmodel" style="float: right; ">Start Simulation</button>
@@ -282,6 +283,7 @@
                         </div>
                     </div>
                     <div class="col-sm-4">
+                        <label for="optRange" style="display: none">range</label>
                         <input class="searchinput" type="text" placeholder="Range" id="optRange">
                         <button class="button button-caution button-rounded button-small" id="runoptimization" style="float:right; margin-left: 10px" disabled="true">Start Optimization</button>
                         <button class="button button-caution button-rounded button-small" id="getoptimizationrange" style="float:right">Get Range</button>
@@ -382,7 +384,7 @@
                             <img src="/static/administration/assets/images/loading.gif" alt="">
                         </div>
                         <div class="col-sm-7 col-sm-push-1">
-                            <div id="progress-info">
+                            <div id="progress-info2">
                                 <div id="box7">
                                     <p><span> Executing optimization ... </span></p>
                                 </div>

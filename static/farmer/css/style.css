@@ -1,0 +1,240 @@
+/* devanagari */
+
+@font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Rajdhani Regular'), local('Rajdhani-Regular'), url(https://fonts.gstatic.com/s/rajdhani/v6/EE_Hj9gAZ_MQQGgP1nh6JhTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+    unicode-range: U+02BC, U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200B-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+}
+
+
+/* latin-ext */
+
+@font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Rajdhani Regular'), local('Rajdhani-Regular'), url(https://fonts.gstatic.com/s/rajdhani/v6/-qJ_O-Faw39SFy2WGGaoiBTbgVql8nDJpwnrE27mub0.woff2) format('woff2');
+    unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+
+
+/* latin */
+
+@font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Rajdhani Regular'), local('Rajdhani-Regular'), url(https://fonts.gstatic.com/s/rajdhani/v6/tz3398jtBIhi1rrADn6BZvesZW2xOQ-xsNqO47m55DA.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+
+
+/* latin-ext */
+
+@font-face {
+    font-family: 'Unica One';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Unica One'), local('UnicaOne-Regular'), url(https://fonts.gstatic.com/s/unicaone/v4/Zxq4PdUSc3GE41eti2ZndBJtnKITppOI_IvcXXDNrsc.woff2) format('woff2');
+    unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+
+
+/* latin */
+
+@font-face {
+    font-family: 'Unica One';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Unica One'), local('UnicaOne-Regular'), url(https://fonts.gstatic.com/s/unicaone/v4/z3VYemEbD7zsQFQLG6g3SltXRa8TVwTICgirnJhmVJw.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+
+.no-js #loader {
+    display: none;
+}
+
+.js #loader {
+    display: block;
+    position: absolute;
+    left: 100px;
+    top: 0;
+}
+
+.se-pre-con {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('/static/farmer/assets/images/loader-64x/Preloader_2.gif') center no-repeat #fff;
+}
+
+body {
+    margin: 0px;
+}
+
+#wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+#content {
+    position: relative;
+    transition: all 1s ease-in;
+}
+
+.page {
+    position: relative;
+}
+
+#page1 {}
+
+#page2 {
+    background-color: yellow;
+}
+
+#page3 {
+    background-color: red;
+}
+
+#page4 {
+    background-color: green;
+}
+
+#page5 {
+    background-color: purple;
+}
+
+#banner {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    z-index: 9;
+    height: 10%;
+    background-color: white;
+    margin: 0px;
+    border-bottom: solid 1px #626262;
+}
+
+#banner button {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+#banner div {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#banner button .hide {
+    display: inline;
+}
+
+@media screen and (max-width: 1550px) {
+    #banner .btnText {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 1850px) {
+    .toRight .btnText {
+        display: none;
+    }
+}
+
+.pageMargin {
+    background: white;
+    height: 10%;
+}
+
+.pageContent {
+    height: 85%;
+    border-left: solid 1px #CACACA;
+    border-right: solid 1px #CACACA;
+}
+
+.pageFooter {
+    background-color: white;
+    height: 5%;
+    border-top: solid 1px #626262;
+}
+
+.page button {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+.fullheight {
+    height: 100%;
+}
+
+.interval {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#scenarioTable {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}
+
+.toRight {
+    text-align: right;
+}
+
+.btnToolTip {
+    color: white;
+}
+
+#scenarioTable {
+    border-left: solid 1px #CACACA;
+    overflow-y: scroll;
+}
+
+#scenarioTable p {
+    line-height: 34px;
+    padding: 0;
+    cursor: pointer;
+    margin: 0;
+    font-weight: bold;
+    /*border-bottom: 1px solid black;*/
+}
+
+#scenarioTable li {
+    list-style-type: none;
+}
+
+#scenarioTable ul {
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+#scenarioTable ul ul li a {
+    /*color: white;*/
+    text-decoration: none;
+    line-height: 27px;
+    display: block;
+    padding: 0 0;
+}
+
+.sideColor {
+    background-color: #0057e7
+}
+
+.overlay {
+    text-align: center;
+    background-color: white;
+    width: 150px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+}

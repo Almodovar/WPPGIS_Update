@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Welcome</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/static/farmer/css/button.css" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Rajdhani|Unica+One" rel="stylesheet"> -->
+    <link rel="stylesheet" href="/static/farmer/node_modules/openlayers/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="/static/farmer/node_modules/font-awesome/css/font-awesome.min.css">
+    <link href="/static/farmer/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/farmer/css/style.css" rel="stylesheet">
+    <script src="/static/farmer/dist/bundle.js"></script>
+    <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.js"></script> -->
+    <script>
+    window.onload = function() {
+        // Animate loader off screen
+        $(".se-pre-con").fadeOut("slow");
+    };
+    </script>
+</head>
+<body>
+    <div class="se-pre-con"></div>
+    <div id="wrapper">
+        <div id="banner" class="row">
+            <div class="col-sm-1">
+            </div>
+            <div class="col-sm-2">
+                <button class="button button-caution button-pill progressBtn"><i class="fa fa-plus"></i><span class="btnText"> Scenario</span> Overview</button>
+            </div>
+            <div class="col-sm-2">
+                <button class="button button-pill progressBtn"><i class="fa fa-plus"></i><span class="btnText"> Scenario</span> Development</button>
+            </div>
+            <div class="col-sm-2">
+                <button class="button button-pill progressBtn"><i class="fa fa-plus"></i><span class="btnText"> Scenario</span> Evaluation</button>
+            </div>
+            <div class="col-sm-2">
+                <button class="button button-pill progressBtn"><i class="fa fa-plus"></i><span class="btnText"> Scenario</span> Comparison</button>
+            </div>
+            <div class="col-sm-2">
+                <button class="button button-pill progressBtn"><i class="fa fa-plus"></i><span class="btnText"> Scenario</span> Optimization</button>
+            </div>
+            <div class="col-sm-1">
+            </div>
+        </div>
+        <div id="content">
+            <div id="page1" class="page">
+                <div class="row pageMargin">
+                </div>
+                <div class="row pageContent">
+                    <div class="col-sm-1 fullheight sideColor">
+                    </div>
+                    <div class="col-sm-7 fullheight">
+                        <div class="row fullheight">
+                            <div class="col-sm-12 interval" id="overviewMapToolBar">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <button class="button button-action button-rounded button-tiny mapLayerBtn" disabled>Field</button>
+                                        <button class="button button-primary button-rounded button-tiny mapLayerBtn">Subbasin</button>
+                                    </div>
+                                    <div class="col-sm-8 toRight">
+                                        <button class="button button-royal button-rounded button-tiny mapResultBtn" disabled><a class="btnToolTip" href="#" data-toggle="tooltip" title="Total P">P<span class="btnText">hosphorus</span></a></button>
+                                        <button class="button button-royal button-rounded button-tiny mapResultBtn" disabled><a class="btnToolTip" href="#" data-toggle="tooltip" title="Total N">N<span class="btnText">itrogen</span></a></button>
+                                        <button class="button button-royal button-rounded button-tiny mapResultBtn" disabled><a class="btnToolTip" href="#" data-toggle="tooltip" title="Sediment">S<span class="btnText">ediment</span></a></button>
+                                        <button class="button button-royal button-rounded button-tiny mapResultBtn" disabled><a class="btnToolTip" href="#" data-toggle="tooltip" title="Flow">F<span class="btnText">low</span></a></button>
+                                        <button class="button button-highlight button-rounded button-tiny mapResultBtn" disabled><a class="btnToolTip" href="#" data-toggle="tooltip" title="NetReturn">N<span class="btnText">etReturn</span></a></button>
+                                        <button class="button button-highlight button-rounded button-tiny mapResultBtn" disabled><a class="btnToolTip" href="#" data-toggle="tooltip" title="Revenue">R<span class="btnText">evenue</span></a></button>
+                                        <button class="button button-highlight button-rounded button-tiny mapResultBtn" disabled><a class="btnToolTip" href="#" data-toggle="tooltip" title="Cost">C<span class="btnText">ost</span></a></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12" id="overviewMap">
+                            </div>
+                            <div id="overlay" class="overlay">
+                            	
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 fullheight">
+                        <div class="row fullheight">
+                            <div class="col-sm-12 fullheight" id="scenarioTable">
+                                <h4 style="text-align: center; font-weight: bold; margin-top: 20px;">Scenario Overview</h4>
+                                <ul>
+                                    <li>
+                                        <hr>
+                                        <p>Conventional</p>
+                                        <hr>
+                                        <ul>
+                                            <li>
+                                                The conventional scenario represents the landscape under traditional agriculture. By default, there is no existing BMPs applied to the investigated fields/subbasins.
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <hr>
+                                        <p>Historical</p>
+                                        <hr>
+                                        <ul>
+                                            <li>
+                                                The historical scenario represents the existing Gully Creek watershed conditions including both existing WasCobs and land management practices.
+                                            </li>
+                                            <hr>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 fullheight sideColor">
+                    </div>
+                </div>
+                <div class="row pageFooter">
+                </div>
+            </div>
+            <div id="page2" class="page">
+                <div class="row pageMargin">
+                </div>
+                <div class="row pageContent">
+                    <div class="col-sm-8">
+                    </div>
+                    <div class="col-sm-4">
+                    </div>
+                </div>
+            </div>
+            <div id="page3" class="page">
+                <div class="row pageMargin">
+                </div>
+                <div class="row pageContent">
+                    <div class="col-sm-8">
+                    </div>
+                    <div class="col-sm-4">
+                    </div>
+                </div>
+            </div>
+            <div id="page4" class="page">
+                <div class="row pageMargin">
+                </div>
+                <div class="row pageContent">
+                    <div class="col-sm-8">
+                    </div>
+                    <div class="col-sm-4">
+                    </div>
+                </div>
+            </div>
+            <div id="page5" class="page">
+                <div class="row pageMargin">
+                </div>
+                <div class="row pageContent">
+                    <div class="col-sm-8">
+                    </div>
+                    <div class="col-sm-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

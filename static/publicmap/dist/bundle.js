@@ -12650,7 +12650,7 @@ for (var i = 0; i < backBtn.length; i++) {
     backBtn[i].addEventListener("click", scrollToHome);
 }
 
-var resize = function () {
+var resize = function() {
     var width = window.innerWidth;
     var height = window.innerHeight;
 
@@ -12709,13 +12709,11 @@ var resize = function () {
     // }
 
     // reverseAnimatePosandOpacity();
-
-
 };
 
 resize();
 
-window.addEventListener("resize", function () {
+window.addEventListener("resize", function() {
     resize();
 
 });
@@ -12797,12 +12795,12 @@ var commentOverlay = document.getElementById("commentOverlay");
 var currentFeature = new Object();
 var iconFeature = [];
 
-var createIconStyle = function (type) {
+var createIconStyle = function(type) {
     return new ol.style.Style({
         image: new ol.style.Icon({
             anchor: [0.5, 0.95],
             scale: 0.03,
-            src:"/static/publicmap/assets/img/" + type + ".png"
+            src: "/static/publicmap/assets/img/" + type + ".png"
         })
     });
 };
@@ -12813,30 +12811,89 @@ var vectorLayer = new ol.layer.Vector({
     })
 });
 
+var subbasinStyle = new ol.style.Style({
+    fill: new ol.style.Fill({
+        color: 'rgba(17,34,68,0.1)'
+    }),
+    stroke: new ol.style.Stroke({
+        color: 'rgba(17,34,68,0.3)',
+        width: 2,
+    })
+});
+
+var subbasinJsonp = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        url: '/static/administration/assets/layers/basin.json',
+        format: new ol.format.GeoJSON()
+    }),
+    style: subbasinStyle
+});
+
+var boundaryStyle = new ol.style.Style({
+    fill: new ol.style.Fill({
+        color: 'rgba(17,34,68,0.2)'
+    }),
+    stroke: new ol.style.Stroke({
+        color: 'white',
+        width: 3,
+    })
+});
+
+var boundaryJsonp = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        url: '/static/administration/assets/layers/boundary.geojson',
+        format: new ol.format.GeoJSON()
+    }),
+    style: boundaryStyle
+});
+
+
 var map = new ol.Map({
     target: 'publicMap',
     layers: [
         new ol.layer.Tile({
             source: new ol.source.OSM()
-        }), vectorLayer
+        }),  vectorLayer
     ],
+    // interactions: ol.interaction.defaults({ mouseWheelZoom: false }),
     view: new ol.View({
-        center: ol.proj.transform([-73.1234, 45.678], 'EPSG:4326', 'EPSG:3857'),
-        zoom: 10
+        center: ol.proj.transform([-61.6555, 63.614], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 6,
     })
 });
+
+boundaryJsonp.getSource().on('addfeature', function(event) {
+    var extent = boundaryJsonp.getSource().getExtent();
+    // console.log(extent);
+    // map.getView().fit(extent, map.getSize());
+        var center = ol.extent.getCenter(extent);
+        map.getView().animate({
+            center: center,
+            duration: 700,
+            zoom: 13,
+        });    
+});
+
+// var interactions = map.getInteractions();
+// for (var i=0; i<interactions.length; i++){
+//     map.removeInteraction(interactions[i]);
+// }
 
 var target = map.getTarget();
 var jTarget = typeof target === "string" ? $("#" + target) : $(target);
 
-map.on('click', function (event) {
+map.on('click', function(event) {
     resetNoteSearch();
     var feature = map.forEachFeatureAtPixel(event.pixel,
-        function (feature, layer) {
-            currentFeature.feature = feature;
-            return true;
+        function(feature, layer) {
+            if (layer !== boundaryJsonp) {
+                currentFeature.feature = feature;
+                return true;
+            }
+            return false;
         });
     if (feature) {
+
         commentOverlay.style[transformProperty] = "scale(1,1)";
         commentOverlay.style.opacity = 0.9;
         var featurePos = currentFeature.feature.getGeometry().getExtent();
@@ -12863,8 +12920,6 @@ map.on('click', function (event) {
             }
         }
         vectorLayer.getSource().changed();
-
-
         commentOverlay.style[transformProperty] = "scale(1,1)";
         commentOverlay.style.opacity = 0.9;
         var featurePos = event.coordinate;
@@ -12874,10 +12929,14 @@ map.on('click', function (event) {
     }
 });
 
-$(map.getViewport()).on('mousemove', function (e) {
+$(map.getViewport()).on('mousemove', function(e) {
     var pixel = map.getEventPixel(e.originalEvent);
-    var hit = map.forEachFeatureAtPixel(pixel, function (feature, layer) {
-        return feature;
+    var hit = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+        if (layer !== boundaryJsonp) {
+            currentFeature.feature = feature;
+            return feature;
+        }
+        return false;
     });
     if (hit) {
         jTarget.css("cursor", "pointer");
@@ -12934,7 +12993,7 @@ var labelType = {
     "livestock": "label-success",
 };
 
-document.getElementById("commentSubmitBtn").addEventListener("click", function () {
+document.getElementById("commentSubmitBtn").addEventListener("click", function() {
     var content = document.getElementById("commentText").value;
     if (currentFeature.featuretype === undefined) {
         document.getElementById("tagNotice").text = "<-- PLEASE SELECT TYPE!";
@@ -12977,7 +13036,7 @@ document.getElementById("commentSubmitBtn").addEventListener("click", function (
 
 });
 
-document.getElementById("commentCancelBtn").addEventListener("click", function () {
+document.getElementById("commentCancelBtn").addEventListener("click", function() {
     commentOverlay.style[transformProperty] = "scale(0,0)";
     commentOverlay.style.opacity = 0;
 
@@ -13001,7 +13060,7 @@ document.getElementById("commentCancelBtn").addEventListener("click", function (
     resetCommentDiv();
 });
 
-document.getElementById("commentText").addEventListener("keyup", function () {
+document.getElementById("commentText").addEventListener("keyup", function() {
     if (this.value.length >= 60) {
         this.style.color = '#db3236';
         this.value = this.value.substr(0, 60);
@@ -13035,17 +13094,17 @@ function resetCommentDiv() {
     }
 }
 
-document.getElementById("mapSelector").addEventListener("focus", function () {
+document.getElementById("mapSelector").addEventListener("focus", function() {
     document.getElementById("mapSelectListDiv").style.height = "100px";
     document.getElementById("mapSelectListDiv").style.opacity = 0.9;
 });
 
-document.getElementById("mapSelector").addEventListener("blur", function () {
+document.getElementById("mapSelector").addEventListener("blur", function() {
     document.getElementById("mapSelectListDiv").style.height = "0px";
     document.getElementById("mapSelectListDiv").style.opacity = 0;
 });
 
-document.getElementById("wTag").addEventListener("click", function () {
+document.getElementById("wTag").addEventListener("click", function() {
     document.getElementById("wTag").style.background = '#5bc0de';
     document.getElementById("wTag").style.color = 'white';
     document.getElementById("sTag").style.background = 'white';
@@ -13057,7 +13116,7 @@ document.getElementById("wTag").addEventListener("click", function () {
     document.getElementById("tagNotice").text = "";
 
 });
-document.getElementById("sTag").addEventListener("click", function () {
+document.getElementById("sTag").addEventListener("click", function() {
     document.getElementById("sTag").style.background = '#ffbb33';
     document.getElementById("sTag").style.color = 'white';
     document.getElementById("wTag").style.background = 'white';
@@ -13069,7 +13128,7 @@ document.getElementById("sTag").addEventListener("click", function () {
     document.getElementById("tagNotice").text = "";
 
 });
-document.getElementById("lTag").addEventListener("click", function () {
+document.getElementById("lTag").addEventListener("click", function() {
     document.getElementById("lTag").style.background = '#5cb85c';
     document.getElementById("lTag").style.color = 'white';
     document.getElementById("sTag").style.background = 'white';
@@ -13083,7 +13142,7 @@ document.getElementById("lTag").addEventListener("click", function () {
 });
 
 for (var i = 0; i < document.body.getElementsByClassName("commentLevel").length; i++) {
-    document.body.getElementsByClassName("commentLevel")[i].addEventListener("click", function (event) {
+    document.body.getElementsByClassName("commentLevel")[i].addEventListener("click", function(event) {
         for (var j = 0; j < document.body.getElementsByClassName("commentLevel").length; j++) {
             document.body.getElementsByClassName("commentLevel")[j].style.color = "#5bc0de";
             document.body.getElementsByClassName("commentLevel")[j].style.background = 'white';
@@ -13095,7 +13154,7 @@ for (var i = 0; i < document.body.getElementsByClassName("commentLevel").length;
     });
 }
 
-document.getElementById("searchFeatureType").onkeyup = function (event) {
+document.getElementById("searchFeatureType").onkeyup = function(event) {
 
     filterNotesByType(event.target.value);
     filterFeaturesByType(event.target.value);
@@ -13165,7 +13224,7 @@ function resetNoteSearch() {
 
 // ======================================================
 
-document.getElementById("searchWordInput").addEventListener("keypress", function (e) {
+document.getElementById("searchWordInput").addEventListener("keypress", function(e) {
     if (e.keyCode == 13) {
         if (document.getElementById("searchWordInput").value === "") {
             return false;
@@ -13178,7 +13237,7 @@ document.getElementById("searchWordInput").addEventListener("keypress", function
     // loadSearchResult();
 });
 
-document.getElementById("searchWordInput").onkeyup = function (e) {
+document.getElementById("searchWordInput").onkeyup = function(e) {
     if (e.target.value === "") {
         // reverseAnimatePosandOpacity();
         document.getElementById("searchWordInput").placeholder = "TYPE SOMETHING";
@@ -13194,7 +13253,7 @@ function animatePosandOpacity() {
     document.getElementById("itemSearchDiv").style.background = 'white';
     document.getElementById("footerDiv").style.background = 'white';
     // document.getElementById("resultListDiv").style.opacity = 1;
-    setTimeout(function () {
+    setTimeout(function() {
         document.getElementById("resultListDiv").style.opacity = 1;
     }, 1000);
 
@@ -13209,4 +13268,37 @@ function reverseAnimatePosandOpacity() {
     document.getElementById("itemSearchDiv").style.background = '#0057e7';
     document.getElementById("footerDiv").style.background = '#0057e7';
 }
+
+// var element = document.getElementById('mapinfo');
+// // $(element).show();
+// var infoOverlay = new ol.Overlay({
+//     element: document.getElementById('mapinfo'),
+//     positioning: 'bottom-center',
+//     stopEvent: false
+// });
+// $(element).html("Gully Creek Watershed");
+// map.addOverlay(infoOverlay);
+
+// infoOverlay.setPosition([-9090154.201199999, 5410501.5949999988]);
+
+
+var element2 = document.getElementById('lakeinfo');
+// $(element).show();
+var infoOverlay2 = new ol.Overlay({
+    element: document.getElementById('lakeinfo'),
+    positioning: 'bottom-center',
+    stopEvent: false
+});
+$(element2).html("Lake Huron");
+map.addOverlay(infoOverlay2);
+
+infoOverlay2.setPosition([-9102154.201199999, 5400501.5949999988]);
+
+
+$("#gcmap").click(function(event) {
+    map.removeLayer(map.getLayers().getArray()[2]);
+    /* Act on the event */
+    document.getElementById("mapSelector").value = "Gully Creek Watershed";
+    map.addLayer(boundaryJsonp);
+});
 },{"bootstrap":1,"jquery":14}]},{},[15]);

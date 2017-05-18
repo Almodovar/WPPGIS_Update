@@ -1,6 +1,8 @@
 package main
 
 import (
+	"WPPGIS_Update/mylib/client"
+	"WPPGIS_Update/mylib/database"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -12,13 +14,10 @@ import (
 
 var templates = template.Must(template.New("t").ParseGlob("static/**/*.html"))
 
-type Client struct {
-	Name     string
-	Password string
-	Role     string
-}
-
 func main() {
+
+	database.GetFieldByClientId(7)
+	database.GetFieldByClientName("guest")
 
 	router := http.NewServeMux()
 
@@ -36,8 +35,12 @@ func main() {
 		renderTemplate(w, r, "administration", nil)
 	})
 
+	router.HandleFunc("/sandbox/", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w, r, "sandbox", nil)
+	})
+
 	router.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
-		var client = new(Client)
+		var client = new(client.Client)
 		var errorMessage = "USERNAME WARNING!"
 		err := json.NewDecoder(r.Body).Decode(&client)
 		if err != nil {
@@ -59,8 +62,6 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			// fmt.Println(client.Name, client.Password)
-			// fmt.Println(name, role, password)
 			if name == client.Name && password == client.Password {
 				client.Role = role
 				fmt.Println(client.Role)

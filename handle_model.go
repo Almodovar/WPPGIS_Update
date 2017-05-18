@@ -1542,6 +1542,7 @@ type OptChartData struct {
 	Sediment     float64
 	TP           float64
 	TN           float64
+	Cost         float64
 }
 
 func HandleOptimizationLimites(w http.ResponseWriter, r *http.Request) {
@@ -1619,8 +1620,8 @@ func HandleOptimizationLimites(w http.ResponseWriter, r *http.Request) {
 	lowerUpperLimits.LowerLimit = limitsSlice[1]
 	lowerUpperLimits.UpperLimit = limitsSlice[0]
 
-	// fmt.Println(limitsSlice[1])
-	// fmt.Println(limitsSlice[0])
+	fmt.Println(limitsSlice[1])
+	fmt.Println(limitsSlice[0])
 
 	// create json response from struct
 	a, err := json.Marshal(lowerUpperLimits)
@@ -1637,6 +1638,8 @@ func HandleOptimizationRun(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	fmt.Println(d.UpperLimit, d.LowerLimit)
+
 	var featureIDString = ""
 
 	for i := 0; i < len(d.SelectedFeatureIDs); i++ {
@@ -1798,10 +1801,13 @@ func generateOptResultJsonFiles(optResultDB *sql.DB) {
 			tempFeatureAssignedBMPs[resultDataSet[j].FeatureID] = resultDataSet[j].FeatureBMPAssigned
 		}
 		GenerateOptResultJsonFile("field", "optfield"+strconv.Itoa(i), tempResultsforFileCreation, tempFeatureAssignedBMPs)
-
 	}
 
 }
+
+var chartCostData = make(map[int]float64)
+var chartInteration = 9
+
 func GenerateOptResultJsonFile(sin string, sout string, array map[int]*Result, assignedBMPs map[int]string) {
 	var featureCollection = new(MapFeature)
 	configFile, err := os.Open("./static/administration/assets/layers/" + sin + ".json")
@@ -1813,6 +1819,8 @@ func GenerateOptResultJsonFile(sin string, sout string, array map[int]*Result, a
 	if err = jsonParser.Decode(&featureCollection); err != nil {
 		fmt.Println("fail 2")
 	}
+
+	var costSum float64
 
 	Quartile(array)
 
@@ -1828,16 +1836,68 @@ func GenerateOptResultJsonFile(sin string, sout string, array map[int]*Result, a
 				featureCollection.Features[i].Properties.SedimentLevel = SelectLevel(array[id].Sediment, SedimentQuartile)
 				featureCollection.Features[i].Properties.TpLevel = SelectLevel(array[id].Tp, TpQuartile)
 				featureCollection.Features[i].Properties.TnLevel = SelectLevel(array[id].Tn, TnQuartile)
+				featureCollection.Features[i].Properties.Cost = getFeatureOptCost(id, assignedBMPs[id])
+				costSum = costSum + featureCollection.Features[i].Properties.Cost
+
 			}
 		}
 	}
-
+	chartCostData[chartInteration] = costSum
+	fmt.Println(costSum, sout)
+	chartInteration--
 	b, err := json.MarshalIndent(featureCollection, "", "  ")
 	// var i = len(featureCollection.Features)
 	err = ioutil.WriteFile("./static/administration/assets/layers/"+sout+".json", b, 0644)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func getFeatureOptCost(featureID int, featureBMPAssigned string) float64 {
+	economicDB, err := sql.Open("sqlite3", "./static/administration/assets/swat/spatial.db3")
+	checkErr(err)
+	var rows = new(sql.Rows)
+	var featureCost float64
+	switch featureBMPAssigned {
+	case "BMP_Con_Til":
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_conservation_tillage")
+		checkErr(err)
+	case "BMP_NMAN":
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_NMAN")
+		checkErr(err)
+	case "BMP_Cov_Crp":
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_cover_crop")
+		checkErr(err)
+	case "BMP_Con_Til_NMAN":
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_con_til_NMAN")
+		checkErr(err)
+	case "BMP_Con_Til_Cov_Crp":
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_con_til_cov_crp")
+		checkErr(err)
+	case "BMP_NMAN_Cov_Crp":
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_NMAN_cov_crp")
+		checkErr(err)
+	case "BMP_All_BMPs":
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_all_BMPs")
+		checkErr(err)
+	default:
+		rows, err = economicDB.Query("SELECT field,year,revenue,cost,netreturn from yield_historic")
+		checkErr(err)
+	}
+	for rows.Next() {
+		var id int
+		var year int
+		var revenue float64
+		var cost float64
+		var netreturn float64
+		err = rows.Scan(&id, &year, &revenue, &cost, &netreturn)
+		checkErr(err)
+
+		if featureID == id {
+			featureCost = cost
+		}
+	}
+	return featureCost
 }
 
 func getOptChartDataSet(optResultDB *sql.DB) []*OptChartData {
@@ -1863,7 +1923,9 @@ func getOptChartDataSet(optResultDB *sql.DB) []*OptChartData {
 		optChartData.Sediment = sediment
 		optChartData.TN = tn
 		optChartData.TP = tp
+		optChartData.Cost = chartCostData[iteration]
 		optChartDataSet = append(optChartDataSet, optChartData)
+		fmt.Println(iteration)
 	}
 	return optChartDataSet
 }

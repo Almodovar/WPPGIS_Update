@@ -2,7 +2,6 @@ package main
 
 import (
 	"WPPGIS_Update/mylib/client"
-	"WPPGIS_Update/mylib/database"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -15,10 +14,6 @@ import (
 var templates = template.Must(template.New("t").ParseGlob("static/**/*.html"))
 
 func main() {
-
-	database.GetFieldByClientId(7)
-	database.GetFieldByClientName("guest")
-
 	router := http.NewServeMux()
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +32,10 @@ func main() {
 
 	router.HandleFunc("/sandbox/", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w, r, "sandbox", nil)
+	})
+
+	router.HandleFunc("/list/", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w, r, "list", nil)
 	})
 
 	router.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {

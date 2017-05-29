@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/farmer/node_modules/font-awesome/css/font-awesome.min.css">
     <link href="/static/farmer/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/farmer/css/style.list.css" rel="stylesheet">
+    <script src="/static/farmer/node_modules/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8" async defer></script>
 </head>
 
 <body>
@@ -20,17 +21,17 @@
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-users fa-fw"></i></span>
-                    <input class="form-control" type="text" name="scenarioname" placeholder="NAME">
+                    <input class="form-control" type="text" name="scenarioname" placeholder="NAME" id="scenarioName">
                 </div>
             </div>
             <div class="form-group">
                 <div class="input-group">
-                    <span class="input-group-addon"><i class="fa fa-info fa-fw"></i></span>
-                    <textarea class="form-control" name="description" rows="2" style="resize:none;" placeholder="DESCRIPTION"></textarea>
+                    <span class="input-group-addon"><i class="fa fa-info fa-fw" aria-hidden="true"></i></span>
+                    <textarea class="form-control" name="description" rows="2" style="resize:none;" placeholder="DESCRIPTION" id="scenarioDescription"></textarea>
                 </div>
             </div>
-            <div>
-                <button class="button button-primary button-rounded button-small"><i class="fa fa-plus"></i> CREATE</button>
+            <div class="hcenter">
+                <button class="button button-primary button-rounded button-small" id="createScenario"><i class="fa fa-check" aria-hidden="true"></i> CREATE</button>
             </div>
         </div>
         <div class="col-sm-3">
@@ -39,31 +40,123 @@
     <div class="row" id="scenarioSelection">
         <div class="col-sm-3">
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6 fullheight">
             <h2 class="hcenter">SELECT A SCENARIO</h2>
-            <table id="scenarioList" class="table table-condensed table-hover">
-                <tr>
-                    <td >Name</td>
-                    <td >Time</td>
-                    <td >Status</td>
-                    <td class=" deletescenario" style="white-space: nowrap;width: 1%;">
-                        <a class="btn btn-danger" aria-label="Delete">
-                            <i class="fa fa-trash-o" aria-hidden="true"></i>
-                        </a>
-                    </td>
-                </tr>
-            </table>
+            <div id="scenarioListContainer">
+                <table id="scenarioList" class="table table-condensed table-hover">
+                    <tr>
+                        <th style="display: none">Id</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Del</th>
+                    </tr>
+                    {{range .Scenarios}}
+                    <tr class="scenarioInfo">
+                        <td style="padding-top:11px; display: none">{{.Id}}</td>
+                        <td style="padding-top:11px;">{{.Name}}</td>
+                        <td style="padding-top:11px;">{{.Description}}</td>
+                        <td style="padding-top:11px;">{{.CreatedAt}}</td>
+                        <td style="padding-top:11px;">{{.Status}}</td>
+                        <td style="white-space: nowrap;width: 1%;">
+                            <a class="btn btn-danger deletescenario" aria-label="Delete">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {{end}}
+                </table>
+            </div>
             <div class="hcenter">
-                <button class="button button-primary button-rounded button-small"><i class="fa fa-plus"></i> SELECT</button>
+                <button class="button button-primary button-rounded button-small"><i class="fa fa-share" aria-hidden="true"></i> SELECT</button>
             </div>
         </div>
         <div class="col-sm-3">
         </div>
     </div>
-    <div class="row" id="authAssignment">
+    <div id="clientName" style="display: hidden; color:white">
+        {{.ClientName}}
     </div>
 </body>
-<script src="/javascripts/application.js" type="text/javascript" charset="utf-8" async defer>
+<script type="text/javascript" charset="utf-8" async defer>
+document.getElementById("createScenario").addEventListener("click", function(evt) {
+    var d = new Date();
+    var currentTime = d.toUTCString();
+    var s = {
+        name: document.getElementById("scenarioName").value,
+        description: document.getElementById("scenarioDescription").value,
+        createdat: currentTime,
+        clientname: document.getElementById("clientName").innerText,
+    };
+    console.log(s.name, s.description, s.createdat, s.clientname);
+
+    var scenario = JSON.stringify(s);
+    $.ajax({
+            url: '/scenariocreation',
+            type: 'post',
+            contentType: 'application/json; charset=utf-8',
+            data: scenario,
+            dataType: 'json',
+        })
+        .done(function(r) {
+            console.log("success");
+            window.location.href = "/sandbox/";
+            // window.location.href = "/sandbox/" + document.getElementById("clientName").innerText;
+        })
+        .fail(function(r) {
+            console.log("error");
+        })
+        .always(function(r) {
+            console.log("complete");
+        });
+}, false);
+
+document.body.addEventListener("click", function(event) {
+    if (event.target.classList.contains('deletescenario')) {
+        var scenarioId = parseInt(event.target.parentNode.parentNode.childNodes[1].innerHTML);
+        $.ajax({
+            url: '/scenariodeletion',
+            type: "post",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(scenarioId),
+            dataType: 'json',
+            success: function(r) {
+                document.getElementById("scenarioList").deleteRow(event.target.parentNode.parentNode.rowIndex);
+            }
+        });
+    }
+    if (event.target.classList.contains('fa-trash-o')) {
+        var scenarioId = parseInt(event.target.parentNode.parentNode.parentNode.childNodes[1].innerHTML);
+        $.ajax({
+            url: '/scenariodeletion',
+            type: "post",
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(scenarioId),
+            dataType: 'json',
+            success: function(r) {
+                document.getElementById("scenarioList").deleteRow(event.target.parentNode.parentNode.parentNode.rowIndex);
+            }
+        });
+    }    
+
+    if(event.target.classList.contains('scenarioInfo')){
+        console.log("done");
+        var s = event.target.parentNode.childNodes;
+        s.forEach( function(element, index) {
+            element.style.backgroundColor = "";
+        });
+        event.target.style.backgroundColor = "rgba(0, 30, 255, 0.3)";
+    } 
+});
+
+// $("#scenarioList tr").click(function(event) {
+
+//     $(this).siblings().css("background-color", "");
+//     $(this).css({
+//         "background-color": "rgba(0, 30, 255, 0.3)",
+//     });
+// });
 </script>
 
 </html>

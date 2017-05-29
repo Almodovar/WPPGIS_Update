@@ -1,109 +1,71 @@
 package main
 
 import (
-	"WPPGIS_Update/mylib/client"
-	"database/sql"
-	"encoding/json"
-	"fmt"
-	"html/template"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
+
+	"WPPGIS_Update/mylib/client"
+	"WPPGIS_Update/mylib/scenario"
+	"WPPGIS_Update/mylib/tmpl"
 
 	_ "github.com/lib/pq"
 )
 
-var templates = template.Must(template.New("t").ParseGlob("static/**/*.html"))
+// Parse and check the templates
 
 func main() {
-	router := http.NewServeMux()
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, r, "index", nil)
-	})
-	router.HandleFunc("/public/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, r, "public", nil)
-	})
-	router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, r, "login", nil)
-	})
+	// A multicomplexer created by the httprouter
+	mux := httprouter.New()
 
-	router.HandleFunc("/administration/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, r, "administration", nil)
-	})
+	// Serve the static file
+	// mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+	mux.ServeFiles(
+		"/static/*filepath",
+		http.Dir("static/"),
+	)
 
-	router.HandleFunc("/sandbox/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, r, "sandbox", nil)
+	// Patterns and Handler functions
+	mux.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		tmpl.RenderTemplate(w, r, "index", nil)
 	})
-
-	router.HandleFunc("/list/", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, r, "list", nil)
+	mux.GET("/public/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		tmpl.RenderTemplate(w, r, "public", nil)
+	})
+	mux.GET("/login/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		tmpl.RenderTemplate(w, r, "login", nil)
 	})
 
-	router.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
-		var client = new(client.Client)
-		var errorMessage = "USERNAME WARNING!"
-		err := json.NewDecoder(r.Body).Decode(&client)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		db, err := sql.Open("postgres", "user=postgres password=postgre dbname=wppgis sslmode=disable")
-		if err != nil {
-			panic(err)
-		}
-		rows, err := db.Query("select name, role, password from client")
-		if err != nil {
-			panic(err)
-		}
-		for rows.Next() {
-			var name string
-			var role string
-			var password string
-			err = rows.Scan(&name, &role, &password)
-			if err != nil {
-				panic(err)
-			}
-			if name == client.Name && password == client.Password {
-				client.Role = role
-				fmt.Println(client.Role)
-				if client.Role == "admin" {
-					errorMessage = "adminAccept"
-				}
-				if client.Role == "client" {
-					errorMessage = "clientAccept"
-				}
-			}
-			if name == client.Name && password != client.Password {
-				errorMessage = "PASSWORD WARNING!"
-			}
-		}
-
-		a, err := json.Marshal(errorMessage)
-		if err != nil {
-			panic(err)
-		}
-		w.Write(a)
+	mux.GET("/administration/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		tmpl.RenderTemplate(w, r, "administration", nil)
 	})
 
-	router.HandleFunc("/runmodel", HandleModelRun)
-	router.HandleFunc("/chart", HandleChart)
-	router.HandleFunc("/drawecooutletchart", HandleEcoOutletChart)
+	mux.GET("/sandbox/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		tmpl.RenderTemplate(w, r, "sandbox", nil)
+	})
 
-	router.HandleFunc("/getlowerupperlimites", HandleOptimizationLimites)
-	router.HandleFunc("/runoptimizationmodel", HandleOptimizationRun)
+	mux.POST("/authorization", client.Authorization)
+	mux.POST("/scenariocreation", scenario.Create)
+	mux.POST("/scenariodeletion", scenario.Delete)
 
-	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
-	http.ListenAndServe(":8080", router)
-}
+	mux.GET("/list/:client", client.GetScenarioList)
 
-func renderTemplate(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
-	err := templates.ExecuteTemplate(w, name+".html", data)
-	if err != nil {
-		http.Error(w, fmt.Sprintf(errorTemplate, name, err), http.StatusInternalServerError)
+	// mux.GET("/runmodel", HandleModelRun)
+	// mux.GET("/chart", HandleChart)
+	// mux.GET("/drawecooutletchart", HandleEcoOutletChart)
+
+	// mux.GET("/getlowerupperlimites", HandleOptimizationLimites)
+	// mux.GET("/runoptimizationmodel", HandleOptimizationRun)
+
+	// Configure the multicomplexer
+	// 8080 is the default port of Go server
+	// mux implements the ServeHTTP interface and by default match patterns with the handler
+
+	server := http.Server{
+		Addr:    "127.0.0.1:8080",
+		Handler: mux,
 	}
-}
+	server.ListenAndServe()
 
-var errorTemplate = `<html>
-<body>
-<h1>Error rendering template %s</h1>
-<p>%s</p>
-</body>
-</html>`
+}

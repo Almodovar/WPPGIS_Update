@@ -12,6 +12,11 @@ type Client struct {
 	Email    string
 }
 
+type ClientFields struct {
+	Client *Client
+	Fields []int
+}
+
 func FindById(id int) (*Client, error) {
 	pgDB := database.ConnectToPostGRE()
 	defer pgDB.Close()

@@ -32,15 +32,14 @@ func Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// 		panic(err)
 	// 	}
 	err = pgDB.QueryRow("INSERT INTO scenario (sname, sdescription, screation, uname) VALUES ($1, $2, $3, $4) returning sid;", scenario.Name, scenario.Description, scenario.CreatedAt, scenario.ClientName).Scan(&sid)
-	fmt.Println(sid)
-
+	scenario.Id = sid
 	fmt.Println(scenario.CreatedAt)
-	path := "client/" + scenario.ClientName + "/" + scenario.Name + "_" + strconv.Itoa(sid)
+	path := "client/" + scenario.ClientName + "/" + scenario.Name + "_" + strconv.Itoa(scenario.Id)
 	fmt.Println(path)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.MkdirAll(path, 0777)
 	}
-	a, err := json.Marshal("Scenario is created!")
+	a, err := json.Marshal(scenario)
 	if err != nil {
 		panic(err)
 	}
@@ -101,4 +100,17 @@ func GetScenariosByClient(c string) *ScenarioByClient {
 		scenarios.Scenarios = append(scenarios.Scenarios, scenario)
 	}
 	return scenarios
+}
+
+func GetScenarioById(id int) *Scenario {
+	var scenario = new(Scenario)
+	pgDB := database.ConnectToPostGRE()
+	defer pgDB.Close()
+
+	err := pgDB.QueryRow("select sid, sname, sdescription, screation, uname, status from scenario where sid = $1", id).Scan(&scenario.Id, &scenario.Name, &scenario.Description, &scenario.CreatedAt, &scenario.ClientName, &scenario.Status)
+	if err != nil {
+		panic(err)
+	}
+	scenario.Id = id
+	return scenario
 }

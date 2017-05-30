@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/static/farmer/node_modules/font-awesome/css/font-awesome.min.css">
     <link href="/static/farmer/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/farmer/css/style.list.css" rel="stylesheet">
-    <script src="/static/farmer/node_modules/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8" async defer></script>
+    <script src="/static/farmer/node_modules/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 <body>
@@ -46,11 +46,11 @@
                 <table id="scenarioList" class="table table-condensed table-hover">
                     <tr>
                         <th style="display: none">Id</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                        <th>Del</th>
+                        <th style="padding-top:11px;">Name</th>
+                        <th style="padding-top:11px;">Description</th>
+                        <th style="padding-top:11px;">Time</th>
+                        <th style="padding-top:11px;">Status</th>
+                        <th style="padding-top:11px;">Del</th>
                     </tr>
                     {{range .Scenarios}}
                     <tr class="scenarioInfo">
@@ -101,8 +101,8 @@ document.getElementById("createScenario").addEventListener("click", function(evt
         })
         .done(function(r) {
             console.log("success");
-            window.location.href = "/sandbox/";
-            // window.location.href = "/sandbox/" + document.getElementById("clientName").innerText;
+            // window.location.href = "/sandbox/";
+            window.location.href = "/sandbox/" + document.getElementById("clientName").innerText+"/"+r.Id;
         })
         .fail(function(r) {
             console.log("error");
@@ -138,25 +138,16 @@ document.body.addEventListener("click", function(event) {
                 document.getElementById("scenarioList").deleteRow(event.target.parentNode.parentNode.parentNode.rowIndex);
             }
         });
-    }    
-
-    if(event.target.classList.contains('scenarioInfo')){
-        console.log("done");
-        var s = event.target.parentNode.childNodes;
-        s.forEach( function(element, index) {
-            element.style.backgroundColor = "";
-        });
-        event.target.style.backgroundColor = "rgba(0, 30, 255, 0.3)";
-    } 
+    }
 });
 
-// $("#scenarioList tr").click(function(event) {
+$("#scenarioList tr").click(function(event) {
+    $(this).siblings().css("background-color", "");
+    $(this).css({
+        "background-color": "rgba(0, 30, 255, 0.3)",
+    });
+});
 
-//     $(this).siblings().css("background-color", "");
-//     $(this).css({
-//         "background-color": "rgba(0, 30, 255, 0.3)",
-//     });
-// });
 </script>
 
 </html>

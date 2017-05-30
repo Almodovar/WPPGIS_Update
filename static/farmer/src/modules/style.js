@@ -39,7 +39,8 @@
             color: 'rgba(87,178,47,0.6)'
         }),
         stroke: new ol.style.Stroke({
-            color: 'white'
+            color: '#FCB120',
+            width: 2
         })
     });
     var subbasinStyle = new ol.style.Style({
@@ -252,8 +253,6 @@
         }
         return [styleCache[level]];
     };
-
-
 
 
     module.exports['severityLevel'] = severityLevel;

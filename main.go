@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 
@@ -41,13 +42,16 @@ func main() {
 		tmpl.RenderTemplate(w, r, "administration", nil)
 	})
 
-	mux.GET("/sandbox/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		tmpl.RenderTemplate(w, r, "sandbox", nil)
+	mux.GET("/sandbox/:client/:scenario", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		var scenarioId, _ = strconv.Atoi(p.ByName("scenario"))
+		var scenario = scenario.GetScenarioById(scenarioId)
+		tmpl.RenderTemplate(w, r, "sandbox", scenario)
 	})
 
 	mux.POST("/authorization", client.Authorization)
 	mux.POST("/scenariocreation", scenario.Create)
 	mux.POST("/scenariodeletion", scenario.Delete)
+	mux.POST("/getfield", client.GetFieldByClientName)
 
 	mux.GET("/list/:client", client.GetScenarioList)
 

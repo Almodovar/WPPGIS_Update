@@ -13667,33 +13667,129 @@ Qk.prototype.changed=Qk.prototype.s;Qk.prototype.dispatchEvent=Qk.prototype.b;Qk
 //
 // load libraries
 //
+window.onload = function() {
+    // Animate loader off screen
+    setTimeout(function() {
+        $(".se-pre-con").fadeOut("slow");
+    }, 1000);
+};
+
 window.$ = window.jQuery = require('jquery');
 var bootstrap = require('bootstrap');
 var layout = require('./modules/layout');
 var progress = require('./modules/progress');
 var style = require('./modules/style');
 var table = require('./modules/table');
-var map = require('./modules/map');
 var button = require('./modules/mapbtn');
+var ol = require('openlayers');
 
 $(document).ready(function() {
+
     layout.resize(document, window);
     window.addEventListener("resize", function() {
         layout.resize(document, window);
     });
-    $('[data-toggle="tooltip"]').tooltip();    
+    $('[data-toggle="tooltip"]').tooltip();
     progress.addProgressClickEvent(window, document);
     table.initScenarioTable();
 
-    var overviewMap = map.initMap();
+
+    var clientName = document.getElementById("clientName").innerText;
+    var tiledRaster = new ol.layer.Tile({
+        source: new ol.source.OSM()
+    });
+    var fieldLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url: '/static/farmer/assets/layers/field.json',
+            format: new ol.format.GeoJSON()
+        }),
+        style: style.defaultStyle
+    });
+
+    fieldLayer.getSource().on('addfeature', function(event) {
+        var fieldFeatures = fieldLayer.getSource().getFeatures();
+        var client = JSON.stringify(clientName);
+        $.ajax({
+                url: '/getfield',
+                type: 'post',
+                contentType: 'application/json; charset=utf-8',
+                data: client,
+                dataType: 'json',
+            })
+            .done(function(r) {
+                for (var i = 0; i < fieldFeatures.length; i++) {
+                    var id = parseInt(fieldFeatures[i].getProperties().Name);
+                    for (var j = 0; j< r.Fields.length; j++){
+                        if (id === r.Fields[j]){
+                            fieldFeatures[i].setStyle(style.fieldStyle);
+                            fieldFeatures[i].setProperties({
+                                'Visible':'Y'
+                            });
+                        }
+                    }
+
+                }
+            })
+            .fail(function(r) {
+                console.log("error");
+            })
+            .always(function(r) {
+                console.log("complete");
+            });
+    });
+
+    var boundary = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url: '/static/farmer/assets/layers/boundary.geojson',
+            format: new ol.format.GeoJSON()
+        }),
+        style: style.boundaryStyle
+    });
+    var outletFeature = new ol.Feature({});
+    var point_geom = new ol.geom.Point(
+        ol.proj.transform([-81.7132830619812, 43.61527726000183], 'EPSG:4326', 'EPSG:3857')
+    );
+    outletFeature.setGeometry(point_geom);
+    var outlet = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [outletFeature]
+        }),
+        zIndex: 10
+    });
+    outlet.setStyle(style.outletDefaultStyle);
+    var element = document.getElementById('overlay');
+    var overlay = new ol.Overlay({
+        element: document.getElementById('overlay'),
+        positioning: 'bottom-center',
+        stopEvent: false
+    });
+    var selectPointerMove = new ol.interaction.Select({
+        layers: [fieldLayer],
+        condition: ol.events.condition.pointerMove,
+        filter: function(feature, layer) {
+            if (layer === fieldLayer) {
+                if (feature.getProperties().Visible === 'Y') {
+                    return true;
+                }
+            }
+            return false;
+        },
+    });
+    var overviewMap = new ol.Map({
+        target: 'overviewMap',
+        layers: [tiledRaster, boundary, outlet, fieldLayer],
+        view: new ol.View({
+            center: ol.proj.transform([-81.6555, 43.614], 'EPSG:4326', 'EPSG:3857'),
+            zoom: 13
+        })
+    });
+    overviewMap.addOverlay(overlay);
+    overviewMap.addInteraction(selectPointerMove);
     console.log(overviewMap.getLayers().getArray().length);
 
-    button.addMapLayerBtnClickListener(overviewMap, document);
 });
 
-
-
-},{"./modules/layout":18,"./modules/map":19,"./modules/mapbtn":20,"./modules/progress":21,"./modules/style":22,"./modules/table":23,"bootstrap":1,"jquery":14}],17:[function(require,module,exports){
+},{"./modules/layout":18,"./modules/mapbtn":19,"./modules/progress":20,"./modules/style":21,"./modules/table":22,"bootstrap":1,"jquery":14,"openlayers":15}],17:[function(require,module,exports){
 // 'use strict'
 
 function hasClass(element, cls) {
@@ -13733,102 +13829,6 @@ var resize = function(document, window) {
 module.exports['resize'] = resize;
 
 },{}],19:[function(require,module,exports){
-var style = require('./style');
-var ol = require('openlayers');
-
-
-
-var initMap = function() {
-    var tiledRaster = new ol.layer.Tile({
-        source: new ol.source.OSM()
-    });
-    var field = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            url: '/static/farmer/assets/layers/field.json',
-            format: new ol.format.GeoJSON()
-        }),
-        style: style.fieldStyle
-    });
-
-    var subbasin = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            url: '/static/farmer/assets/layers/basin.json',
-            format: new ol.format.GeoJSON()
-        }),
-        style: style.subbasinStyle
-    });
-
-    var boundary = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            url: '/assets/data/geojson/boundary.geojson',
-            format: new ol.format.GeoJSON()
-        }),
-        style: style.boundaryStyle
-    });
-
-    var outletFeature = new ol.Feature({});
-    var point_geom = new ol.geom.Point(
-        ol.proj.transform([-81.7132830619812, 43.61527726000183], 'EPSG:4326', 'EPSG:3857')
-    );
-    outletFeature.setGeometry(point_geom);
-
-    var outlet = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [outletFeature]
-        }),
-        zIndex: 10
-    });
-
-    outlet.setStyle(style.outletDefaultStyle);
-
-    var element = document.getElementById('overlay');
-    var overlay = new ol.Overlay({
-        element: document.getElementById('overlay'),
-        positioning: 'bottom-center',
-        stopEvent: false
-    });
-
-    var map = new ol.Map({
-        target: 'overviewMap',
-        layers: [tiledRaster, boundary, outlet, field, subbasin],
-        view: new ol.View({
-            center: ol.proj.transform([-81.6555, 43.614], 'EPSG:4326', 'EPSG:3857'),
-            zoom: 13
-        })
-    });
-    map.addOverlay(overlay);
-    subbasin.setVisible(false);
-
-    return map;
-};
-
-
-var addLayer = function(map, layer) {
-    map.addLayer(layer);
-};
-
-var removeLayer = function(map, layer) {
-    map.removeLayer(layer);
-};
-
-var getLayerIndex = function(map, layer) {
-    return map.getLayers().getArray().indexOf(layer);
-};
-
-var removeLayerByIndex = function(index) {
-    var layer = map.getLayers().getArray()[index];
-    map.removeLayer(layer);
-};
-
-
-
-module.exports['initMap'] = initMap;
-module.exports['addLayer'] = addLayer;
-module.exports['removeLayer'] = removeLayer;
-module.exports['getLayerIndex'] = getLayerIndex;
-module.exports['removeLayerByIndex'] = removeLayerByIndex;
-
-},{"./style":22,"openlayers":15}],20:[function(require,module,exports){
 var cls = require("./class");
 
 var addMapLayerBtnClickListener = function(map, document) {
@@ -13876,7 +13876,7 @@ var addMapResultBtnClickListener = function(map, document) {
 module.exports['addMapLayerBtnClickListener'] = addMapLayerBtnClickListener;
 module.exports['addMapResultBtnClickListener'] = addMapResultBtnClickListener;
 
-},{"./class":17}],21:[function(require,module,exports){
+},{"./class":17}],20:[function(require,module,exports){
 // 'use strict'
 
 var cls = require('./class');
@@ -13951,7 +13951,7 @@ module.exports['currentProgress'] = currentProgress;
 module.exports['progressStatus'] = progressStatus;
 module.exports['addProgressClickEvent'] = addProgressClickEvent;
 
-},{"./class":17}],22:[function(require,module,exports){
+},{"./class":17}],21:[function(require,module,exports){
     // var Great = 'rgba(53, 191, 0, 0.6)';
     // var Good = 'rgba(115, 197, 0, 0.6)';
     // var Normal = 'rgba(181, 203, 0, 0.6)';
@@ -13993,7 +13993,8 @@ module.exports['addProgressClickEvent'] = addProgressClickEvent;
             color: 'rgba(87,178,47,0.6)'
         }),
         stroke: new ol.style.Stroke({
-            color: 'white'
+            color: '#FCB120',
+            width: 2
         })
     });
     var subbasinStyle = new ol.style.Style({
@@ -14208,8 +14209,6 @@ module.exports['addProgressClickEvent'] = addProgressClickEvent;
     };
 
 
-
-
     module.exports['severityLevel'] = severityLevel;
     module.exports['defaultStyle'] = defaultStyle;
     module.exports['boundaryStyle'] = boundaryStyle;
@@ -14228,7 +14227,7 @@ module.exports['addProgressClickEvent'] = addProgressClickEvent;
     module.exports['styleRevenueFunction'] = styleRevenueFunction;
     module.exports['styleNetReturnFunction'] = styleNetReturnFunction;
 
-},{"openlayers":15}],23:[function(require,module,exports){
+},{"openlayers":15}],22:[function(require,module,exports){
 var initScenarioTable = function() {
     $("#scenarioTable ul ul").hide();
 
